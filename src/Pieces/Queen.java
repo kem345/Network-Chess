@@ -2,15 +2,9 @@ package Pieces;
 
 public class Queen extends Piece {
 
-	public Queen(int num, int xCoord, int yCoord) {
-		super(num, xCoord, yCoord);
+	public Queen(int num, String team) {
+		super(num, team);
 		// TODO Auto-generated constructor stub
-	}
-
-	@Override
-	public void move(int xPos, int yPos) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

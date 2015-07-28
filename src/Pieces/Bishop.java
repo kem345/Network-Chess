@@ -2,14 +2,9 @@ package Pieces;
 
 public class Bishop extends Piece {
 
-	public Bishop(int num, int xCoord, int yCoord) {
-		super(num, xCoord, yCoord);
-	}
 
-	@Override
-	public void move(int xPos, int yPos) {
-		// TODO Auto-generated method stub
-		
+	public Bishop(int num, String team) {
+		super(num, team);
 	}
 
 	@Override

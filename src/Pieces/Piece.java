@@ -5,16 +5,13 @@ import main.Space;
 public abstract class Piece {
 
 	protected int pieceNumber;
-	protected int xCoordinate;
-	protected int yCoordinate;
 	protected int moveCount = 0;
-	
+	protected String team;
 	// Constructor 
 	
-	public Piece(int num, int xCoord, int yCoord) {
+	public Piece(int num, String team) {
 		pieceNumber = num;
-		xCoordinate = xCoord;
-		yCoordinate = yCoord;
+		this.team = team;
 	}
 
 	// Getters and Setters
@@ -26,24 +23,6 @@ public abstract class Piece {
 	public void setPieceNumber(int pieceNumber) {
 		this.pieceNumber = pieceNumber;
 	}
-
-	public int getxCoordinate() {
-		return xCoordinate;
-	}
-
-	public void setxCoordinate(int xCoordinate) {
-		if(xCoordinate > 0 && xCoordinate <= 64)
-		this.xCoordinate = xCoordinate;
-	}
-
-	public int getyCoordinate() {
-		return yCoordinate;
-	}
-
-	public void setyCoordinate(int yCoordinate) {
-		if(yCoordinate > 0 && yCoordinate <= 64)
-		this.yCoordinate = yCoordinate;
-	}
 	
 	public int getMoveCount() {
 		return moveCount;
@@ -53,10 +32,15 @@ public abstract class Piece {
 		moveCount++;
 	}
 	
+	public String getTeam() {
+		return team;
+	}
+
+	public void setTeam(String team) {
+		this.team = team;
+	}
 	
 	// Abstract methods to be implemented by each piece's class
-	
-	abstract public void move(int xPos, int yPos);
 	
 	abstract public boolean checkMove(int xPos, int yPos);
 	
@@ -68,8 +52,7 @@ public abstract class Piece {
 		}
 		
 		Piece p = (Piece) o;
-		if(pieceNumber == p.getPieceNumber() && xCoordinate == p.getxCoordinate()
-				&& yCoordinate == p.getyCoordinate()) {
+		if(pieceNumber == p.getPieceNumber() && team.equalsIgnoreCase(p.getTeam())) {
 			return true;
 		}
 		

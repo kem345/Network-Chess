@@ -1,10 +1,12 @@
 package main;
 
+import Pieces.Piece;
+
 public class Space {
 	
 	int xCoordinate;
 	int yCoordinate;
-	boolean hasPieceOn = false;
+	Piece piece = null;
 	
 	public Space(int xCoordinate, int yCoordinate) {
 		this.xCoordinate = xCoordinate;
@@ -17,6 +19,7 @@ public class Space {
 		return xCoordinate;
 	}
 	public void setxCoordinate(int xCoordinate) {
+		if(xCoordinate > 0 && xCoordinate <= 64)
 		this.xCoordinate = xCoordinate;
 	}
 
@@ -24,19 +27,24 @@ public class Space {
 		return yCoordinate;
 	}
 	public void setyCoordinate(int yCoordinate) {
+		if(yCoordinate > 0 && yCoordinate <= 64)
 		this.yCoordinate = yCoordinate;
 	}
 	
-	public boolean isPieceOn() {
-		return hasPieceOn;
+	/** If the space has a piece on it return true else return false **/
+	public boolean hasPiece() {
+		if(piece == null)
+			return false;
+		
+		return true;
 	}
 	
-	public void placePiece() {
-		hasPieceOn = true;
+	public void placePiece(Piece piece) {
+		this.piece = piece;
 	}
 	
 	public void removePiece() {
-		hasPieceOn = false;
+		this.piece = null;
 	}
 		
 	
