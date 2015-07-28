@@ -1,22 +1,54 @@
 package main;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Iterator;
+import java.util.Vector;
+
 import Pieces.Piece;
 
 public class Board {
 	
-	//private Map<int, int> pieces = new HashMap<int, int>(); 
-	private Space[] spaces = new Space[64];
+	private Vector<Space> spaces = new Vector<Space>();
 	
-	public Board() {  }
+	public Board() { 
+		spaces.setSize(64); 
+	}
 
-	public Space[] getSpaces() {
+	public Vector<Space> getSpaces() {
 		return spaces;
 	}
-	public void setPiece(Space space) {
+	
+	// Create all 64 spaces for the chessboard. Initialize them to have no pieces
+	public void createBoard() {
+		spaces.clear();
+		// set y-coordinates
+		for(int y=1; y <= 8; y++) {
+			// set x-coordinates
+			for(int x=1; x <= 8; x++) {
+				spaces.addElement(new Space(x, y));
+			}
+		}
 	}
 	
+	public void setPiece(int xCoord, int yCoord, Piece piece) {
+		int index = getSpaceIndex(xCoord, yCoord);
+		if(index > -1 && spaces.get(index) != null) {
+			spaces.get(index).placePiece(piece);
+		}
+	}
+	
+	public int getSpaceIndex(int xCoord, int yCoord) {
+		int index = 0;
+		Iterator<Space> sp = spaces.iterator();
+		while(sp.hasNext()) {
+			Space tempSpace = sp.next();
+			if(tempSpace.getxCoordinate() == xCoord && tempSpace.getyCoordinate() == yCoord) {
+				return index;
+			}
+			index++;
+		}
+		
+		return -1;
+	}
 	
 	
 	

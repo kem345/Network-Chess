@@ -2,15 +2,10 @@ package Pieces;
 
 public class King extends Piece {
 
-	public King(int num, int xCoord, int yCoord) {
-		super(num, xCoord, yCoord);
-		// TODO Auto-generated constructor stub
-	}
 
-	@Override
-	public void move(int xPos, int yPos) {
-		// TODO Auto-generated method stub
-		
+	public King(int num, String team) {
+		super(num, team);
+		// TODO Auto-generated constructor stub
 	}
 
 	@Override
