@@ -13,6 +13,7 @@ public class Game {
 	private Vector<Piece> team1CapturedPieces = new Vector<Piece>();
 	private Vector<Piece> team2CapturedPieces = new Vector<Piece>();
 	private Board board;
+	private Team turn;
 
 	// Constructor 
 	
@@ -42,8 +43,24 @@ public class Game {
 		return team2CapturedPieces;
 	}
 
-	public void captureTeam2Piece(Piece piece) {
-		this.team2CapturedPieces.addElement(piece);
+	public void captureTeam2Piece(Piece piece) throws Exception {
+		if(piece.getTeam().equals(Team.TEAM2)) {
+			this.team2CapturedPieces.addElement(piece);
+		} else {
+			throw new Exception("A team 2 piece must be provided to this method");
+		}
+	}
+
+	public Team getTurn() {
+		return turn;
+	}
+
+	public void changeTurn() {
+		if(turn.equals(Team.TEAM1))
+			turn = Team.TEAM2;
+		
+		if(turn.equals(Team.TEAM2))
+			turn = Team.TEAM1;
 	}
 
 	/** Setup the game in its initial state 
@@ -55,9 +72,53 @@ public class Game {
 		// Create the board and initialize all of the pieces		
 		board.createBoard();
 		initializePieces();
+		turn = Team.TEAM1;
 		
 		
+	}
+	
+	// TODO: plan-- The clickable graphics will give coordinates of start and end spaces
+	public void makeMove(int startX, int startY, int endX, int endY) throws Exception {
+		Space start = board.getSpace(startX, startY);
+		Space end = board.getSpace(endX, endY);
+		// If the start space does not have a piece then no move can be made
+		if(!start.hasPiece()) {
+			throw new Exception("Start space does not have a piece to move");
+		}
+		Piece piece = start.getPiece();
+		boolean approveMove = false;
 		
+		// Check the piece is allowed to move to the new space
+		// Only knights can jump over pieces so if it is not a knight, check that the path for the move is clear
+		// Check that another piece from the same team is not already on the space
+		if(!(piece instanceof Knight) && piece.checkMove(start, end) && 
+				board.clearBetween(start, end)) {
+			if((!end.hasPiece()) || (end.hasPiece() && 
+					(!end.getPiece().getTeam().equals(piece.getTeam()))))
+				approveMove = true;				
+		} else if(piece instanceof Knight && piece.checkMove(start, end)) {
+			if((!end.hasPiece()) || (end.hasPiece() && 
+					(!end.getPiece().getTeam().equals(piece.getTeam()))))
+				approveMove = true;
+		}
+		
+		// If the piece is allowed to move to the new space then allow it
+		if(approveMove) {
+			// If there is a piece in the new spot then capture it
+			if(end.hasPiece()) {
+				Piece endPiece = end.getPiece();
+				if(endPiece.getTeam().equals(Team.TEAM1)) {
+					captureTeam1Piece(endPiece);
+					end.removePiece();
+				} else if(endPiece.getTeam().equals(Team.TEAM2)) {
+					captureTeam2Piece(endPiece);
+					end.removePiece();
+				}
+			}
+			// Move the piece from start to finish position
+			start.removePiece();
+			end.placePiece(piece);
+		}
 	}
 
 	/**

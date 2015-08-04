@@ -21,7 +21,7 @@ public class GameTest {
 	}
 
 	@Test
-	public void testCaptureTeam2Piece() {
+	public void testCaptureTeam2Piece() throws Exception {
 		Pawn pawn = new Pawn(1, Team.TEAM1);
 		assertFalse(game.getTeam2CapturedPieces().contains(pawn));
 		game.captureTeam2Piece(pawn);
