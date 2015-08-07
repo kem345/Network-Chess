@@ -206,7 +206,6 @@ public class BoardGraphics extends Applet {
 	    int h = (int) dim.getHeight();
 	    g2.setStroke(new BasicStroke(8.0f));
 	    
-	    
 	    if (firstTime) {
 	      area = new Rectangle(dim);
 	      
