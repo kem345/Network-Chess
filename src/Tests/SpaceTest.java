@@ -40,7 +40,7 @@ public class SpaceTest {
 	public void testSetInvalidxCoordinate2() throws Exception {
 		// test that exception is thrown when coord is under
 		Space sp = new Space(0,0);
-		sp.setxCoordinate(0);	
+		sp.setxCoordinate(8);	
 	}
 	
 	@Test(expected=Exception.class)
@@ -54,7 +54,7 @@ public class SpaceTest {
 	public void testSetInvalidyCoordinate2() throws Exception {
 		// test that exception is thrown when coord is under
 		Space sp = new Space(0,0);
-		sp.setyCoordinate(0);	
+		sp.setyCoordinate(-1);	
 	}
 
 	@Test

@@ -19,7 +19,7 @@ public class Space {
 		return xCoordinate;
 	}
 	public void setxCoordinate(int xCoordinate) throws Exception {
-		if(xCoordinate > 0 && xCoordinate <= 8) {
+		if(xCoordinate >= 0 && xCoordinate <= 7) {
 			this.xCoordinate = xCoordinate;
 		} else {
 			throw new Exception("Coordinate must be between 1 and 8");
@@ -30,7 +30,7 @@ public class Space {
 		return yCoordinate;
 	}
 	public void setyCoordinate(int yCoordinate) throws Exception {
-		if(yCoordinate > 0 && yCoordinate <= 8) {
+		if(yCoordinate >= 0 && yCoordinate <= 7) {
 			this.yCoordinate = yCoordinate;
 		} else {
 			throw new Exception("Coordinate must be between 1 and 8");

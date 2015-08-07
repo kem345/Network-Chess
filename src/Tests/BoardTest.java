@@ -23,10 +23,10 @@ public class BoardTest {
 			// check that it creates 64 spaces
 			assertTrue(board.getSpaces().size() == 64);
 			// check that the first and last elements are correct
-			assertTrue(board.getSpaces().elementAt(0).getxCoordinate() == 1);
-			assertTrue(board.getSpaces().elementAt(0).getyCoordinate() == 1);
-			assertTrue(board.getSpaces().elementAt(63).getxCoordinate() == 8);
-			assertTrue(board.getSpaces().elementAt(63).getyCoordinate() == 8);
+			assertTrue(board.getSpaces().elementAt(0).getxCoordinate() == 0);
+			assertTrue(board.getSpaces().elementAt(0).getyCoordinate() == 0);
+			assertTrue(board.getSpaces().elementAt(63).getxCoordinate() == 7);
+			assertTrue(board.getSpaces().elementAt(63).getyCoordinate() == 7);
 		} catch(Exception e) {
 			fail("Exception throw in test");
 		}
@@ -38,7 +38,7 @@ public class BoardTest {
 			board = new Board();
 			board.createBoard();
 			assertFalse(board.getSpaces().get(0).hasPiece());
-			board.setPiece(1, 1, new Pawn(0, Team.TEAM1));
+			board.setPiece(0, 0, new Pawn(0, Team.TEAM1));
 			assertTrue(board.getSpaces().get(0).hasPiece());
 		} catch(Exception e) {
 			fail("Exception throw in test");
@@ -68,8 +68,8 @@ public class BoardTest {
 	public void testGetSpaceIndex() {
 		board = new Board();
 		board.createBoard();
-		assertTrue(board.getSpaceIndex(1, 1) == 0);
-		assertTrue(board.getSpaceIndex(8, 8) == 63);
+		assertTrue(board.getSpaceIndex(0, 0) == 0);
+		assertTrue(board.getSpaceIndex(7, 7) == 63);
 		assertTrue(board.getSpaceIndex(9, 9) == -1);
 	}
 	
@@ -77,9 +77,9 @@ public class BoardTest {
 	public void testGetSpace() {
 		board = new Board();
 		board.createBoard();
-		Space sp = board.getSpace(1, 1);
-		assertTrue(sp.getxCoordinate() == 1 && sp.getyCoordinate() == 1);
-		assertTrue(board.getSpace(0, 0) == null);
+		Space sp = board.getSpace(0, 0);
+		assertTrue(sp.getxCoordinate() == 0 && sp.getyCoordinate() == 0);
+		assertTrue(board.getSpace(8, 8) == null);
 	}
 
 	@Test
@@ -200,12 +200,12 @@ public class BoardTest {
 		board = new Board();  
 		board.createBoard();
 		
-		board.setPiece(4, 1, new King(0, Team.TEAM1));
-		board.setPiece(1, 1, new Pawn(0, Team.TEAM2));
+		board.setPiece(3, 0, new King(0, Team.TEAM1));
+		board.setPiece(0, 0, new Pawn(0, Team.TEAM2));
 		assertFalse(board.teamInCheckmate(Team.TEAM1));
-		board.setPiece(7, 1, new Queen(0, Team.TEAM2));
+		board.setPiece(6, 0, new Queen(0, Team.TEAM2));
 		assertFalse(board.teamInCheckmate(Team.TEAM1));
-		board.setPiece(3, 2, new Rook(0, Team.TEAM2));
+		board.setPiece(2, 1, new Rook(0, Team.TEAM2));
 		assertTrue(board.teamInCheckmate(Team.TEAM1));
 	}
 

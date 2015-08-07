@@ -25,9 +25,9 @@ public class Board {
 	public void createBoard() {
 		spaces.clear();
 		// set y-coordinates
-		for(int y=1; y <= 8; y++) {
+		for(int y=0; y <= 7; y++) {
 			// set x-coordinates
-			for(int x=1; x <= 8; x++) {
+			for(int x=0; x <= 7; x++) {
 				spaces.addElement(new Space(x, y));
 			}
 		}
@@ -36,7 +36,7 @@ public class Board {
 	/** Set the given piece on the space specified by the coordinates 
 	 * @throws Exception **/
 	public void setPiece(int xCoord, int yCoord, Piece piece) throws Exception {
-		if(xCoord > 8 || xCoord < 1 || yCoord > 8 || yCoord < 1) {
+		if(xCoord > 7 || xCoord < 0 || yCoord > 7 || yCoord < 0) {
 			throw new Exception("invlaid coordinate");
 		}
 		int index = getSpaceIndex(xCoord, yCoord);
@@ -252,7 +252,7 @@ public class Board {
 		// Remove any spaces that go beyond the dimensions of the board
 		Vector<Space> retVec = new Vector<Space>();
 		for(Space sp : temp) {
-			if(!(sp.getxCoordinate() > 8 || sp.getxCoordinate() < 1 || sp.getyCoordinate() > 8 || sp.getyCoordinate() < 1))
+			if(!(sp.getxCoordinate() > 7 || sp.getxCoordinate() < 0 || sp.getyCoordinate() > 7 || sp.getyCoordinate() < 0))
 				retVec.addElement(sp);
 		}
 		

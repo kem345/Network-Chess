@@ -133,36 +133,36 @@ public class Game {
 	private void initializePieces() throws Exception {
 
 		// Give each team 8 pawns at the correct starting positions
-		for (int i = 1; i <= 8; i++) {
-			board.setPiece(i, 2, new Pawn(i, Team.TEAM1));
-			board.setPiece(i, 7, new Pawn(i, Team.TEAM2));
+		for (int i = 0; i <= 7; i++) {
+			board.setPiece(i, 1, new Pawn(i, Team.TEAM1));
+			board.setPiece(i, 6, new Pawn(i, Team.TEAM2));
 		}
 
 		// Give both teams 2 knights in the correct starting positions
-		board.setPiece(2, 1, new Knight(0, Team.TEAM1));
-		board.setPiece(7, 1, new Knight(1, Team.TEAM1));
-		board.setPiece(2, 8, new Knight(0, Team.TEAM2));
-		board.setPiece(7, 8, new Knight(0, Team.TEAM2));
+		board.setPiece(1, 0, new Knight(0, Team.TEAM1));
+		board.setPiece(6, 0, new Knight(1, Team.TEAM1));
+		board.setPiece(1, 7, new Knight(0, Team.TEAM2));
+		board.setPiece(6, 7, new Knight(0, Team.TEAM2));
 
 		// Give both teams 2 bishops in the correct starting positions
-		board.setPiece(3, 1, new Bishop(0, Team.TEAM1));
-		board.setPiece(6, 1, new Bishop(1, Team.TEAM1));
-		board.setPiece(3, 8, new Bishop(0, Team.TEAM2));
-		board.setPiece(6, 8, new Bishop(1, Team.TEAM2));
+		board.setPiece(2, 0, new Bishop(0, Team.TEAM1));
+		board.setPiece(5, 0, new Bishop(1, Team.TEAM1));
+		board.setPiece(2, 7, new Bishop(0, Team.TEAM2));
+		board.setPiece(5, 7, new Bishop(1, Team.TEAM2));
 
 		// Give both teams 2 rooks in the correct starting positions
-		board.setPiece(1, 1, new Rook(0, Team.TEAM1));
-		board.setPiece(8, 1, new Rook(1, Team.TEAM1));
-		board.setPiece(1, 8, new Rook(0, Team.TEAM2));
-		board.setPiece(8, 8, new Rook(1, Team.TEAM2));
+		board.setPiece(0, 0, new Rook(0, Team.TEAM1));
+		board.setPiece(7, 0, new Rook(1, Team.TEAM1));
+		board.setPiece(0, 7, new Rook(0, Team.TEAM2));
+		board.setPiece(7, 7, new Rook(1, Team.TEAM2));
 
 		// Give both teams a Queen in the correct starting position
-		board.setPiece(4, 1, new Queen(0, Team.TEAM1));
-		board.setPiece(4, 8, new Queen(0, Team.TEAM2));
+		board.setPiece(3, 0, new Queen(0, Team.TEAM1));
+		board.setPiece(3, 7, new Queen(0, Team.TEAM2));
 
 		// Give both teams a King in the correct starting position
-		board.setPiece(5, 1, new King(0, Team.TEAM1));
-		board.setPiece(5, 8, new King(0, Team.TEAM2));
+		board.setPiece(4, 0, new King(0, Team.TEAM1));
+		board.setPiece(4, 7, new King(0, Team.TEAM2));
 	}
 
 }
