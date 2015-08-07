@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import java.util.Vector;
 
 import Pieces.*;
+import main.Game.Team;
 
 public class Board {
 	
@@ -168,6 +169,7 @@ public class Board {
 		return true;
 	}
 	
+	/** Checks if there are pieces in the spaces between the given spaces **/
 	public boolean clearBetween(Space s1, Space s2) {
 		if(s1.isInRow(s2) && clearInRow(s1, s2))
 			return true;
@@ -181,7 +183,8 @@ public class Board {
 		return false;
 	}
 	
-	public Map<Space, Piece> getTeamPieces(String team) {
+	/** Return a map containing all of pieces for the given team and the space that the piece is currently on **/
+	public Map<Space, Piece> getTeamPieces(Team team) {
 		Map<Space, Piece> map = new HashMap<Space, Piece>();
 		for(Space sp : spaces) {
 			if(sp.hasPiece() && sp.getPiece().getTeam().equals(team)) {
@@ -192,8 +195,26 @@ public class Board {
 		return map; 
 	}
 	
-	/** Return true if the team's king is in check **/
-	public boolean teamInCheck(String team) {
+	/** Checks if a king would be in check if it was on the given space **/
+	public boolean spaceInCheck(Space space, Team team) {
+		Map<Space,Piece> opponentPieces = new HashMap<Space,Piece>();
+		if(team.equals(Team.TEAM1))
+			opponentPieces = getTeamPieces(Team.TEAM2);
+		else
+			opponentPieces = getTeamPieces(Team.TEAM1);
+		
+		// Check if each opponent piece can move to the given space if it can then it is in check
+		for(Entry<Space, Piece> entry : opponentPieces.entrySet()) {
+			if((!(entry.getValue() instanceof King)) && entry.getValue().checkMove(entry.getKey(), space) &&
+					clearBetween(entry.getKey(), space)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	private Space getTeamKingSpace(Team team) {
 		Map<Space,Piece> pieces = getTeamPieces(team);
 		// get the team's king location
 		Space kingSpace = new Space(0, 0);
@@ -203,14 +224,61 @@ public class Board {
 			}
 		}
 		
-		// Check if each piece can move to the King's space if it can then it is in check
-		for(Entry<Space, Piece> entry : pieces.entrySet()) {
-			if((!(entry.getValue() instanceof King)) && entry.getValue().checkMove(entry.getKey(), kingSpace) &&
-					clearBetween(entry.getKey(), kingSpace)) {
-				return true;
+		return kingSpace;
+	}
+	
+	/** Return true if the team's king is in check **/
+	public boolean teamInCheck(Team team) {
+		// get the team's king location
+		Space kingSpace = getTeamKingSpace(team);
+		
+		return spaceInCheck(kingSpace, team);
+	}
+	
+	/** Return all spaces that a King can move to 
+	 * @throws Exception **/
+	private Vector<Space> getKingMoves(Space start) {
+		Vector<Space> temp = new Vector<Space>();		
+		// Get all space a king would be allowed to move to and add them to the temp vector
+		temp.addElement(new Space(start.getxCoordinate(), start.getyCoordinate() + 1));
+		temp.addElement(new Space(start.getxCoordinate(), start.getyCoordinate() - 1));
+		temp.addElement(new Space(start.getxCoordinate() + 1, start.getyCoordinate()));
+		temp.addElement(new Space(start.getxCoordinate() - 1, start.getyCoordinate()));
+		temp.addElement(new Space(start.getxCoordinate() + 1, start.getyCoordinate() + 1));
+		temp.addElement(new Space(start.getxCoordinate() - 1, start.getyCoordinate() - 1));
+		temp.addElement(new Space(start.getxCoordinate() + 1, start.getyCoordinate() - 1));
+		temp.addElement(new Space(start.getxCoordinate() - 1, start.getyCoordinate() + 1));
+		
+		// Remove any spaces that go beyond the dimensions of the board
+		Vector<Space> retVec = new Vector<Space>();
+		for(Space sp : temp) {
+			if(!(sp.getxCoordinate() > 8 || sp.getxCoordinate() < 1 || sp.getyCoordinate() > 8 || sp.getyCoordinate() < 1))
+				retVec.addElement(sp);
+		}
+		
+		return retVec;
+		
+	}
+	
+	/** Return true if team is in checkmate 
+	 * @throws Exception **/
+	public boolean teamInCheckmate(Team team) throws Exception {
+		// A team can't be in checkmate if it is not in check
+		if(!teamInCheck(team))
+			return false;
+		
+		Space kingSpace = getTeamKingSpace(team);
+		// get the king object
+		King king = (King) kingSpace.getPiece();
+		// Get all moves the king can make
+		Vector<Space> moves = getKingMoves(kingSpace);
+		for(Space sp : moves) {
+			// If there is a space for the king to move then it is not in checkmate
+			if((!spaceInCheck(sp, team)) && king.checkMove(kingSpace, sp)) {
+				return false;
 			}
 		}
 		
-		return false;
+		return true;
 	}
 }

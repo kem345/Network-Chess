@@ -22,7 +22,7 @@ public class GameTest {
 
 	@Test
 	public void testCaptureTeam2Piece() throws Exception {
-		Pawn pawn = new Pawn(1, Team.TEAM1);
+		Pawn pawn = new Pawn(1, Team.TEAM2);
 		assertFalse(game.getTeam2CapturedPieces().contains(pawn));
 		game.captureTeam2Piece(pawn);
 		assertTrue(game.getTeam2CapturedPieces().contains(pawn));
@@ -38,6 +38,17 @@ public class GameTest {
 		} catch(Exception e) {
 			fail("Exception throw in test");
 		}
+	}
+	
+	@Test
+	public void testTurn() throws Exception {
+		Game g = new Game();
+		g.startGame();
+		assertTrue(g.getTurn() == Team.TEAM1);
+		g.changeTurn();
+		assertTrue(g.getTurn() == Team.TEAM2);
+		g.changeTurn();
+		assertTrue(g.getTurn() == Team.TEAM1);
 	}
 
 

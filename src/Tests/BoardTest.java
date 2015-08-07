@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import Pieces.Pawn;
+import Pieces.*;
 import main.Board;
 import main.Space;
 import main.Game.Team;
@@ -134,6 +134,79 @@ public class BoardTest {
 		} catch(Exception e) {
 			fail("Exception throw in test");
 		}
+	}
+	
+	@Test
+	public void testClearBetween() {
+		board = new Board();
+		board.createBoard();
+		Space s42 = new Space(4, 2);
+		Space s24 = new Space(2, 4);
+		Space s76 = new Space(7, 6);
+		
+		try {
+			board.setPiece(4, 4, new Pawn(0, Team.TEAM1));
+			// Check clear in row, column and diagonal
+			assertTrue(board.clearBetween(s4, s24));
+			assertTrue(board.clearBetween(s4, s42));
+			assertTrue(board.clearBetween(s4, s2));
+			
+			// Set pieces between those space and check for false
+			board.setPiece(3, 4, new Knight(0, Team.TEAM1));
+			board.setPiece(4, 3, new Bishop(0, Team.TEAM1));
+			board.setPiece(3, 3, new Rook(0, Team.TEAM1));
+			assertFalse(board.clearBetween(s4, s24));
+			assertFalse(board.clearBetween(s4, s42));
+			assertFalse(board.clearBetween(s4, s2));
+			
+			// Test spaces that aren't in any line with each other 
+			assertFalse(board.clearBetween(s4, s76));
+			
+		} catch (Exception e) {
+			fail("Exception thrown");
+		}
+	}
+	
+	@Test
+	public void testGetTeamPieces() throws Exception {
+		board = new Board();
+		board.createBoard();
+		Pawn pawn = new Pawn(0, Team.TEAM1);
+		Pawn pawn2 = new Pawn(0, Team.TEAM2);
+		
+		assertEquals(board.getTeamPieces(Team.TEAM1).size(), 0);
+		board.setPiece(4, 4, pawn);
+		board.setPiece(4, 3, pawn2);
+		assertTrue(board.getTeamPieces(Team.TEAM1).size() == 1);
+				
+	}
+	
+	@Test
+	public void testTeamInCheck() throws Exception {
+		board = new Board();
+		board.createBoard();
+		
+		board.setPiece(1, 2, new Pawn(0, Team.TEAM1));
+		board.setPiece(4, 4, new King(0, Team.TEAM1));
+		assertFalse(board.teamInCheck(Team.TEAM1));
+		board.setPiece(1, 1, new Queen(0, Team.TEAM2));
+		assertTrue(board.teamInCheck(Team.TEAM1));
+		assertFalse(board.teamInCheck(Team.TEAM2));
+		
+	}
+	
+	@Test
+	public void testTeamInCheckmate() throws Exception {
+		board = new Board();  
+		board.createBoard();
+		
+		board.setPiece(4, 1, new King(0, Team.TEAM1));
+		board.setPiece(1, 1, new Pawn(0, Team.TEAM2));
+		assertFalse(board.teamInCheckmate(Team.TEAM1));
+		board.setPiece(7, 1, new Queen(0, Team.TEAM2));
+		assertFalse(board.teamInCheckmate(Team.TEAM1));
+		board.setPiece(3, 2, new Rook(0, Team.TEAM2));
+		assertTrue(board.teamInCheckmate(Team.TEAM1));
 	}
 
 }

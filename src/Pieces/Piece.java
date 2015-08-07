@@ -44,5 +44,5 @@ public abstract class Piece {
 	// Abstract methods to be implemented by each piece's class
 	
 	abstract public boolean checkMove(Space start, Space end);
-		
+	
 }

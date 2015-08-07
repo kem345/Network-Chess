@@ -58,8 +58,7 @@ public class Game {
 	public void changeTurn() {
 		if(turn.equals(Team.TEAM1))
 			turn = Team.TEAM2;
-		
-		if(turn.equals(Team.TEAM2))
+		else if(turn.equals(Team.TEAM2))
 			turn = Team.TEAM1;
 	}
 
@@ -78,6 +77,7 @@ public class Game {
 	}
 	
 	// TODO: plan-- The clickable graphics will give coordinates of start and end spaces
+	// TODO: Make sure move doesn't put you in check
 	public void makeMove(int startX, int startY, int endX, int endY) throws Exception {
 		Space start = board.getSpace(startX, startY);
 		Space end = board.getSpace(endX, endY);
