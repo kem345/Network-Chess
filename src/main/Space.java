@@ -18,17 +18,27 @@ public class Space {
 	public int getxCoordinate() {
 		return xCoordinate;
 	}
-	public void setxCoordinate(int xCoordinate) {
-		if(xCoordinate > 0 && xCoordinate <= 64)
-		this.xCoordinate = xCoordinate;
+	public void setxCoordinate(int xCoordinate) throws Exception {
+		if(xCoordinate > 0 && xCoordinate <= 8) {
+			this.xCoordinate = xCoordinate;
+		} else {
+			throw new Exception("Coordinate must be between 1 and 8");
+		}
 	}
 
 	public int getyCoordinate() {
 		return yCoordinate;
 	}
-	public void setyCoordinate(int yCoordinate) {
-		if(yCoordinate > 0 && yCoordinate <= 64)
-		this.yCoordinate = yCoordinate;
+	public void setyCoordinate(int yCoordinate) throws Exception {
+		if(yCoordinate > 0 && yCoordinate <= 8) {
+			this.yCoordinate = yCoordinate;
+		} else {
+			throw new Exception("Coordinate must be between 1 and 8");
+		}
+	}
+	
+	public Piece getPiece() {
+		return piece;
 	}
 	
 	/** If the space has a piece on it return true else return false **/
@@ -46,20 +56,30 @@ public class Space {
 	public void removePiece() {
 		this.piece = null;
 	}
-		
 	
-
-	
-	boolean isInRow(Space space) {
-		if(yCoordinate - space.getyCoordinate() == 0) {
+	/** Returns true if the given space is in the same row, false otherwise **/
+	public boolean isInRow(Space space) {
+		if(yCoordinate == space.getyCoordinate()) {
 			return true;
 		}
 		
 		return false;
 	}
 	
-	boolean isInColumn(Space space) {
-		if(xCoordinate - space.getxCoordinate() == 0) {
+	/** Returns true if the given space is in the same column, false otherwise **/
+	public boolean isInColumn(Space space) {
+		if(xCoordinate == space.getxCoordinate()) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/** Returns true if the given space is in a diagonal line 
+	 * on the board with this space, false otherwise **/
+	public boolean isInDiagonal(Space space) {
+		if(Math.abs(xCoordinate - space.getxCoordinate()) ==
+				Math.abs(yCoordinate - space.getyCoordinate())) {
 			return true;
 		}
 		
@@ -69,10 +89,10 @@ public class Space {
 	
 	@Override
 	public boolean equals(Object o) {
+		// If the object is null or not the right type then return false
 		if(o == null || !(o instanceof Space)) {
 			return false;
-		}
-		
+		}		
 		Space s = (Space) o;
 		if(xCoordinate == s.getxCoordinate() && yCoordinate == s.getyCoordinate()) {
 			return true;
@@ -81,5 +101,4 @@ public class Space {
 		return false;
 	}
 		
-
 }

@@ -1,15 +1,16 @@
 package Pieces;
 
 import main.Space;
+import main.Game.Team;
 
 public abstract class Piece {
 
 	protected int pieceNumber;
 	protected int moveCount = 0;
-	protected String team;
+	protected Team team;
 	// Constructor 
 	
-	public Piece(int num, String team) {
+	public Piece(int num, Team team) {
 		pieceNumber = num;
 		this.team = team;
 	}
@@ -32,31 +33,16 @@ public abstract class Piece {
 		moveCount++;
 	}
 	
-	public String getTeam() {
+	public Team getTeam() {
 		return team;
 	}
 
-	public void setTeam(String team) {
+	public void setTeam(Team team) {
 		this.team = team;
 	}
 	
 	// Abstract methods to be implemented by each piece's class
 	
-	abstract public boolean checkMove(int xPos, int yPos);
-	
-	
-	@Override
-	public boolean equals(Object o) {
-		if(o == null || !(o instanceof Piece)) {
-			return false;
-		}
-		
-		Piece p = (Piece) o;
-		if(pieceNumber == p.getPieceNumber() && team.equalsIgnoreCase(p.getTeam())) {
-			return true;
-		}
-		
-		return false;
-	}
+	abstract public boolean checkMove(Space start, Space end);
 	
 }
