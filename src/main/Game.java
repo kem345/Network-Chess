@@ -78,7 +78,7 @@ public class Game {
 	
 	// TODO: plan-- The clickable graphics will give coordinates of start and end spaces
 	// TODO: Make sure move doesn't put you in check
-	public void makeMove(int startX, int startY, int endX, int endY) throws Exception {
+	public boolean makeMove(int startX, int startY, int endX, int endY) throws Exception {
 		Space start = board.getSpace(startX, startY);
 		Space end = board.getSpace(endX, endY);
 		// If the start space does not have a piece then no move can be made
@@ -118,7 +118,11 @@ public class Game {
 			// Move the piece from start to finish position
 			start.removePiece();
 			end.placePiece(piece);
+			
+			return true;
 		}
+		
+		return false;
 	}
 
 	/**
