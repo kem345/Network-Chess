@@ -5,6 +5,10 @@ import java.awt.event.*;
 import java.applet.Applet;
 import java.awt.image.*;
 import java.util.ArrayList;
+import java.util.Vector;
+
+import Pieces.Piece;
+import main.Game;
 
 public class BoardGraphics extends Applet {
 
@@ -20,7 +24,8 @@ public class BoardGraphics extends Applet {
 	  }
 
 	  public static void main(String s[]) {
-	    Frame f = new Frame("Network Chess");
+	    
+		Frame f = new Frame("Network Chess");
 	    f.addWindowListener(new WindowAdapter() {
 
 	      public void windowClosing(WindowEvent e) {
@@ -38,7 +43,8 @@ public class BoardGraphics extends Applet {
 	}
 
 	class SMCanvas extends Canvas implements MouseListener, MouseMotionListener {
-	  
+	  Game game1 = new Game();
+	  Board gameBoard = new Board();
 	  Rectangle rect = new Rectangle(0, 0, 100, 50);
 	  BufferedImage bi;
 	  Graphics2D big;
@@ -52,14 +58,28 @@ public class BoardGraphics extends Applet {
 	  //TexturePaint fillPolka, strokePolka;
 	  Rectangle area;
 	  ArrayList<Rectangle> BoardGrid = new ArrayList<Rectangle>();
-	  ArrayList<Rectangle> playerPieces = new ArrayList<Rectangle>();
-	  ArrayList<Rectangle> enemyPieces = new ArrayList<Rectangle>();
+	  ArrayList<Rectangle> playerRectangles = new ArrayList<Rectangle>();
+	  ArrayList<Rectangle> enemyRectangles = new ArrayList<Rectangle>();
+	  Vector<Piece> playerPieces = new Vector<Piece>();
+	  Vector<Piece> enemyPieces = new Vector<Piece>();
+	  
+	  Space startSpace;
+	  Space newSpace;
 	  
 	  
 	  // True if the user pressed, dragged or released the mouse outside of the rectangle; false otherwise.
 	  boolean pressOut = false;
 
 	  public SMCanvas() {
+		try {
+			game1.startGame();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		gameBoard = game1.getBoard();
+		
+		
 	    setBackground(Color.white);
 	    addMouseMotionListener(this);
 	    addMouseListener(this);
@@ -81,8 +101,8 @@ public class BoardGraphics extends Applet {
 
 	  // Handles the event of the user pressing down the mouse button.
 	  public void mousePressed(MouseEvent e) {
-	    last_x = rect.x - e.getX();
-	    last_y = rect.y - e.getY();
+	    //last_x = rect.x - e.getX();
+	    //last_y = rect.y - e.getY();
 
 	    // Checks whether or not the cursor is inside of the rectangle while the
 	    // user is pressing the mouse.
@@ -114,34 +134,55 @@ public class BoardGraphics extends Applet {
 	    // user releases the mouse button.
 		
 		if(pieceSelected){
-			
-			//playerPieces.get(pieceHeld).setLocation(e.getX(), e.getY());
+			//playerRectangles.get(pieceHeld).setLocation(e.getX(), e.getY());
 			//repaint place piece was
 			//paint new place
+			Piece movingPiece = startSpace.getPiece();
 			
 			pieceSelected = false;
 			for (int j=0; j<BoardGrid.size(); j++){
 				if(BoardGrid.get(j).contains(e.getX(), e.getY())){
-					newSquare = j;
-					playerPieces.get(pieceHeld).setLocation((int)BoardGrid.get(j).getX() + 5, (int)BoardGrid.get(j).getY() + 5);
+					newSquare = j;		
 					System.out.println(j);
 				}
 			}
 			
+			newSpace = gameBoard.getSpace(newSquare % 8, newSquare / 8);
+			//System.out.println("QWE");
+			if(movingPiece.checkMove(startSpace, newSpace)){
+				playerRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);
+				newSpace.placePiece(movingPiece);
+				startSpace.removePiece();
+			}
+			
+			
 			repaint();
 		}else{
-			for(int i=0; i<playerPieces.size(); i++){
-				if(playerPieces.get(i).contains(e.getX(), e.getY())){
+			for(int i=0; i<playerRectangles.size(); i++){
+				if(playerRectangles.get(i).contains(e.getX(), e.getY())){
 					System.out.println("Got Piece " + i);
 					pieceSelected = true;
 					pieceHeld = i;
 					for (int j=0; j<BoardGrid.size(); j++){
-						if(BoardGrid.get(j).contains(playerPieces.get(i))){
+						if(BoardGrid.get(j).contains(playerRectangles.get(i))){
 							startSquare = j;
+							System.out.println(startSquare % 8);
+							System.out.println(startSquare / 8);
 						}
 					}
+					startSpace = gameBoard.getSpace(startSquare % 8, startSquare / 8);
+					System.out.println(startSpace.hasPiece());
 				}
 			}
+			/*for(int i =0; i< gameBoard.getSpaces().size(); i++){
+				System.out.println(gameBoard.getSpaces().get(i).hasPiece()
+						+ " " + 
+						gameBoard.getSpaces().get(i).getxCoordinate() 
+						+ " " +
+						gameBoard.getSpaces().get(i).getyCoordinate()
+						
+						);
+			}*/
 		}
 		
 	    /*if (rect.contains(e.getX(), e.getY())) {
@@ -232,7 +273,7 @@ public class BoardGraphics extends Applet {
 	      for( int i=0; i<16; i++){
 	    	  Rectangle piece = new Rectangle();
 	    	  piece.setBounds(i*50 % 400 + 15, i/8 * 50 + 15, 30, 30);
-	    	  enemyPieces.add(piece);
+	    	  enemyRectangles.add(piece);
 	    	  g2.setPaint(Color.orange);
 	    	  g2.draw(piece);
 	    	  g2.fill(piece);
@@ -241,7 +282,7 @@ public class BoardGraphics extends Applet {
 	      for( int i=48; i<64; i++){
 	    	  Rectangle piece = new Rectangle();
 	    	  piece.setBounds(i*50 % 400 + 15, i/8 * 50 + 15, 30, 30);
-	    	  playerPieces.add(piece);
+	    	  playerRectangles.add(piece);
 	    	  g2.setPaint(Color.blue);
 	    	  g2.draw(piece);
 	    	  g2.fill(piece);
@@ -255,10 +296,7 @@ public class BoardGraphics extends Applet {
 	      //rect.setBounds(15, 15, 30, 30);
 	      firstTime = false;
 	    }else{
-	    	System.out.println(playerPieces.get(pieceHeld).getBounds());
-		    g2.setPaint(Color.blue);
-		    g2.draw(playerPieces.get(pieceHeld));
-		    g2.fill(playerPieces.get(pieceHeld));
+	    	
 		    //row even
 		    if((startSquare/8) %2 == 0){
 		    	//column even
@@ -281,6 +319,12 @@ public class BoardGraphics extends Applet {
 		    }
 		    g2.draw(BoardGrid.get(startSquare));
 		    g2.fill(BoardGrid.get(startSquare));
+		    
+		    
+		    System.out.println(playerRectangles.get(pieceHeld).getBounds());
+		    g2.setPaint(Color.blue);
+		    g2.draw(playerRectangles.get(pieceHeld));
+		    g2.fill(playerRectangles.get(pieceHeld));
 	    }
 	    /*System.out.println(0%8%2);
 	    System.out.println(1%8%2);
