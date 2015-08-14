@@ -116,17 +116,17 @@ public class BoardGraphics extends Applet implements ActionListener {
 		
 		//define piece images
 		wPawnImg = new ImageIcon("../images/whitePawn.png").getImage();
-		wRookImg = new ImageIcon("../images/whitePawn.png").getImage();
-		wKnightImg = new ImageIcon("../images/whitePawn.png").getImage();
-		wBishopImg = new ImageIcon("../images/whitePawn.png").getImage();
-		wKingImg = new ImageIcon("../images/whitePawn.png").getImage();
-		wQueenImg = new ImageIcon("../images/whitePawn.png").getImage();
+		wRookImg = new ImageIcon("../images/whiteRook.png").getImage();
+		wKnightImg = new ImageIcon("../images/whiteKnight.png").getImage();
+		wBishopImg = new ImageIcon("../images/whiteBishop.png").getImage();
+		wKingImg = new ImageIcon("../images/whiteKing.png").getImage();
+		wQueenImg = new ImageIcon("../images/whiteQueen.png").getImage();
 		bPawnImg = new ImageIcon("../images/blackPawn.png").getImage();
-		bRookImg = new ImageIcon("../images/whitePawn.png").getImage();
-		bKnightImg = new ImageIcon("../images/whitePawn.png").getImage();
-		bBishopImg = new ImageIcon("../images/whitePawn.png").getImage();
-		bKingImg = new ImageIcon("../images/whitePawn.png").getImage();
-		bQueenImg = new ImageIcon("../images/whitePawn.png").getImage();
+		bRookImg = new ImageIcon("../images/blackRook.png").getImage();
+		bKnightImg = new ImageIcon("../images/blackKnight.png").getImage();
+		bBishopImg = new ImageIcon("../images/blackBishop.png").getImage();
+		bKingImg = new ImageIcon("../images/blackKing.png").getImage();
+		bQueenImg = new ImageIcon("../images/blackQueen.png").getImage();
 		
 		//background
 	    setBackground(Color.white);
@@ -169,10 +169,20 @@ public class BoardGraphics extends Applet implements ActionListener {
 			
 			newSpace = gameBoard.getSpace(newSquare % 8, newSquare / 8);
 			//System.out.println("QWE");
-			if(movingPiece.makeMove(startSpace, newSpace)){
-				playerRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);
-				newSpace.placePiece(movingPiece);
-				startSpace.removePiece();
+			try {
+				if(game1.isValidMove(startSpace, newSpace)){
+					//if(newSpace.hasPiece()){
+						
+					//}
+					game1.makeMove(startSpace, newSpace);
+					playerRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);
+					//newSpace.placePiece(movingPiece);
+					//startSpace.removePiece();
+					//game1.getBoard()
+				}
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
 			
 			
@@ -196,9 +206,14 @@ public class BoardGraphics extends Applet implements ActionListener {
 					possibleMoves.clear();
 					for(int k=0; k<64; k++){
 						newSpace = gameBoard.getSpace(k % 8, k / 8);
-						Piece movingPiece = startSpace.getPiece();
-						if(movingPiece.makeMove(startSpace, newSpace)){
-							possibleMoves.add(BoardGrid.get(k));
+						//Piece movingPiece = startSpace.getPiece();
+						try {
+							if(game1.isValidMove(startSpace, newSpace)){
+								possibleMoves.add(BoardGrid.get(k));
+							}
+						} catch (Exception e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
 						}
 					}
 				}
@@ -273,102 +288,151 @@ public class BoardGraphics extends Applet implements ActionListener {
 	    Graphics2D g2 = (Graphics2D) g;
 	    g2.setStroke(new BasicStroke(8.0f));
 	    
-	    if (firstTime) {
-	      for(int i=0; i<64; i+=2){
-	    	  Rectangle whiteSpace = new Rectangle();
-	    	  Rectangle blackSpace = new Rectangle();
-	    	  	if((i/8) %2 == 0){
-					whiteSpace.setBounds((i*50) % 400 + 10,i/8 * 50 + 10,40,40);
-					blackSpace.setBounds(((i+1)*50) % 400 + 10,(i+1)/8 * 50 + 10,40,40);
-					BoardGrid.add(whiteSpace);
-					BoardGrid.add(blackSpace);
-	    	  	}else{
-	    	  		whiteSpace.setBounds(((i+1)*50) % 400 + 10,i/8 * 50 + 10,40,40);
-	    	  		blackSpace.setBounds((i*50) % 400 + 10,(i+1)/8 * 50 + 10,40,40);
-					BoardGrid.add(blackSpace);
-					BoardGrid.add(whiteSpace);
-	    	  	}
-				g2.setPaint(Color.black);
-				g2.draw(blackSpace);
-				g2.fill(blackSpace);
-				g2.setPaint(Color.white);
-				g2.draw(whiteSpace);
-	      }
-	      for( int i=0; i<16; i++){
-	    	  Rectangle piece = new Rectangle();
-	    	  piece.setBounds(i*50 % 400 + 15, i/8 * 50 + 15, 30, 30);
-	    	  enemyRectangles.add(piece);
-	    	  g2.setPaint(Color.orange);
-	    	  g2.draw(piece);
-	    	  g2.fill(piece);
-	      }
-	      
-	      for( int i=48; i<64; i++){
-	    	  Rectangle piece = new Rectangle();
-	    	  piece.setBounds(i*50 % 400 + 15, i/8 * 50 + 15, 30, 30);
-	    	  playerRectangles.add(piece);
-	    	  g2.setPaint(Color.blue);
-	    	  g2.draw(piece);
-	    	  g2.fill(piece);
-	      }
-	     // for(int i=0; i<64; i++){
-	    //	  System.out.println(BoardGrid.get(i).x);
-	    //  }
-	      Rectangle board = new Rectangle(5,5,400,400);
-	      g2.setPaint(Color.black);
-	      g2.draw(board);
-	      //rect.setBounds(15, 15, 30, 30);
 
-		    
-		  //Rectangle r = playerRectangles.get(0);
-		    //g2.setPaint(Color.yellow);
-		    //g2.draw(playerRectangles.get(0));
-		    //g2.fill(playerRectangles.get(0));
-		    //System.out.println(img.);
-		  //g2.drawImage(img, r.x, r.y, r.width, r.height, null);
-	      firstTime = false;
-	    }else{
-	    	
-		    //row even
-		    if((startSquare/8) %2 == 0){
-		    	//column even
-		    	if(startSquare%8 % 2 == 0){
-		    		//System.out.println("Even row, even column, black");
-		    		g2.setPaint(Color.white);
-		    	}else{//column odd
-		    		//System.out.println("Even row, odd column, white");
-		    		g2.setPaint(Color.black);
-		    	}
-		    }else{ // row odd
-		    	//column even
-		    	if(startSquare%8 % 2 == 0){
-		    		//System.out.println("Odd row, even column, white");
-		    		g2.setPaint(Color.black);
-		    	}else{//column odd
-		    		//System.out.println("Odd row, odd column, black");
-		    		g2.setPaint(Color.white);
-		    	}
-		    }
-		    g2.draw(BoardGrid.get(startSquare));
-		    g2.fill(BoardGrid.get(startSquare));
-		    
-		    
-		    System.out.println(playerRectangles.get(pieceHeld).getBounds());
-		    g2.setPaint(Color.blue);
-		    g2.draw(playerRectangles.get(pieceHeld));
-		    g2.fill(playerRectangles.get(pieceHeld));
+	    for(int i=0; i<64; i+=2){
+    	  Rectangle whiteSpace = new Rectangle();
+    	  Rectangle blackSpace = new Rectangle();
+    	  	if((i/8) %2 == 0){
+				whiteSpace.setBounds((i*50) % 400 + 10,i/8 * 50 + 10,40,40);
+				blackSpace.setBounds(((i+1)*50) % 400 + 10,(i+1)/8 * 50 + 10,40,40);
+				BoardGrid.add(whiteSpace);
+				BoardGrid.add(blackSpace);
+    	  	}else{
+    	  		whiteSpace.setBounds(((i+1)*50) % 400 + 10,i/8 * 50 + 10,40,40);
+    	  		blackSpace.setBounds((i*50) % 400 + 10,(i+1)/8 * 50 + 10,40,40);
+				BoardGrid.add(blackSpace);
+				BoardGrid.add(whiteSpace);
+    	  	}
+			g2.setPaint(Color.black);
+			g2.draw(blackSpace);
+			g2.fill(blackSpace);
+			g2.setPaint(Color.white);
+			g2.draw(whiteSpace);
 	    }
+	    for( int i=0; i<16; i++){
+    	  Rectangle piece = new Rectangle();
+    	  piece.setBounds(i*50 % 400 + 15, i/8 * 50 + 15, 30, 30);
+    	  enemyRectangles.add(piece);
+    	  g2.setPaint(Color.orange);
+    	  g2.draw(piece);
+    	  g2.fill(piece);
+	    }
+      
+	    for( int i=48; i<64; i++){
+    	  Rectangle piece = new Rectangle();
+    	  piece.setBounds(i*50 % 400 + 15, i/8 * 50 + 15, 30, 30);
+    	  playerRectangles.add(piece);
+    	  g2.setPaint(Color.blue);
+    	  g2.draw(piece);
+    	  g2.fill(piece);
+	    }
+     // for(int i=0; i<64; i++){
+    //	  System.out.println(BoardGrid.get(i).x);
+    //  }
+	    /*Rectangle board = new Rectangle(5,5,400,400);
+	    g2.setPaint(Color.black);
+	    g2.draw(board);*/
+      //rect.setBounds(15, 15, 30, 30);
+
+	    
+	  //Rectangle r = playerRectangles.get(0);
+	    //g2.setPaint(Color.yellow);
+	    //g2.draw(playerRectangles.get(0));
+	    //g2.fill(playerRectangles.get(0));
+	    //System.out.println(img.);
+	  //g2.drawImage(img, r.x, r.y, r.width, r.height, null);
+	    //firstTime = false;
+
+    	
+	    //row even
+	    if((startSquare/8) %2 == 0){
+	    	//column even
+	    	if(startSquare%8 % 2 == 0){
+	    		//System.out.println("Even row, even column, black");
+	    		g2.setPaint(Color.white);
+	    	}else{//column odd
+	    		//System.out.println("Even row, odd column, white");
+	    		g2.setPaint(Color.black);
+	    	}
+	    }else{ // row odd
+	    	//column even
+	    	if(startSquare%8 % 2 == 0){
+	    		//System.out.println("Odd row, even column, white");
+	    		g2.setPaint(Color.black);
+	    	}else{//column odd
+	    		//System.out.println("Odd row, odd column, black");
+	    		g2.setPaint(Color.white);
+	    	}
+	    }
+	    g2.draw(BoardGrid.get(startSquare));
+	    g2.fill(BoardGrid.get(startSquare));
+	    
+	    
+	    System.out.println(playerRectangles.get(pieceHeld).getBounds());
+	    g2.setPaint(Color.blue);
+	    g2.draw(playerRectangles.get(pieceHeld));
+	    g2.fill(playerRectangles.get(pieceHeld));
+    
 	    g2.setPaint(Color.yellow);
 	    for(int i=0; i<possibleMoves.size(); i++){
 	    	g2.draw(possibleMoves.get(i));
 		    g2.fill(possibleMoves.get(i));
 	    }
 	    
-	    Rectangle r = playerRectangles.get(0);
-	    g2.drawImage(wPawnImg, r.x, r.y, r.width, r.height, null);
+	    Rectangle r = null;
+	    for(int i=0;i<8;i++){
+		    r = playerRectangles.get(i);
+		    g2.drawImage(wPawnImg, r.x, r.y, r.width, r.height, null);	    	
+	    }
+	    for(int i=8;i<16;i++){
+		    r = enemyRectangles.get(i);
+		    g2.drawImage(bPawnImg, r.x, r.y, r.width, r.height, null);	    	
+	    }
+	    r = playerRectangles.get(9);
+	    g2.drawImage(wKnightImg, r.x, r.y, r.width, r.height, null);
+	    r = playerRectangles.get(14);
+	    g2.drawImage(wKnightImg, r.x, r.y, r.width, r.height, null);
 
-	    r = playerRectangles.get(1);
-	    g2.drawImage(bPawnImg, r.x, r.y, r.width, r.height, null);
+	    r = enemyRectangles.get(1);
+	    g2.drawImage(bKnightImg, r.x, r.y, r.width, r.height, null);
+	    r = enemyRectangles.get(6);
+	    g2.drawImage(bKnightImg, r.x, r.y, r.width, r.height, null);
+	    
+	    r = playerRectangles.get(8);
+	    g2.drawImage(wRookImg, r.x, r.y, r.width, r.height, null);
+	    r = playerRectangles.get(15);
+	    g2.drawImage(wRookImg, r.x, r.y, r.width, r.height, null);
+	    
+	    r = enemyRectangles.get(0);
+	    g2.drawImage(bRookImg, r.x, r.y, r.width, r.height, null);
+	    r = enemyRectangles.get(7);
+	    g2.drawImage(bRookImg, r.x, r.y, r.width, r.height, null);
+
+	    r = playerRectangles.get(10);
+	    g2.drawImage(wBishopImg, r.x, r.y, r.width, r.height, null);
+	    r = playerRectangles.get(13);
+	    g2.drawImage(wBishopImg, r.x, r.y, r.width, r.height, null);
+	    
+	    r = enemyRectangles.get(2);
+	    g2.drawImage(bBishopImg, r.x, r.y, r.width, r.height, null);
+	    r = enemyRectangles.get(5);
+	    g2.drawImage(bBishopImg, r.x, r.y, r.width, r.height, null);
+	    
+	    r = playerRectangles.get(12);
+	    g2.drawImage(wQueenImg, r.x, r.y, r.width, r.height, null);
+
+	    r = enemyRectangles.get(4);
+	    g2.drawImage(bQueenImg, r.x, r.y, r.width, r.height, null);
+	    
+	    r = playerRectangles.get(11);
+	    g2.drawImage(wKingImg, r.x, r.y, r.width, r.height, null);
+	    
+	    r = enemyRectangles.get(3);
+	    g2.drawImage(bKingImg, r.x, r.y, r.width, r.height, null);
+	    
+	    Rectangle board = new Rectangle(5,5,400,400);
+	    g2.setPaint(Color.black);
+	    g2.draw(board);
 	  }
 
 	  /*
