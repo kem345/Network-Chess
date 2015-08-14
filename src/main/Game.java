@@ -1,5 +1,11 @@
 package main;
 
+import java.io.BufferedReader;
+import java.io.IOError;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.util.Vector;
 
 import Pieces.*;
@@ -9,6 +15,13 @@ public class Game {
 	public enum Team {
 		TEAM1, TEAM2
 	}
+	
+	public BufferedReader in;
+	public PrintWriter out;
+	private static int PORT = 8989;
+	public static String SERVERADDRESS = "localhost";
+	
+
 	
 	private Vector<Piece> team1CapturedPieces = new Vector<Piece>();
 	private Vector<Piece> team2CapturedPieces = new Vector<Piece>();
@@ -22,6 +35,31 @@ public class Game {
 		board = new Board();
 	}
 	
+	
+	public void run() throws Exception{
+		Socket socket = new Socket(SERVERADDRESS,PORT);
+		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		out = new PrintWriter(socket.getOutputStream(),true);
+		
+		while(true){
+			String message = in.readLine();
+			if(message.startsWith("TEAM")){
+				if(message.equals("TEAM1")) 
+					yourTeam = Team.TEAM1;
+				else
+					yourTeam = Team.TEAM2;
+			}else if(message.startsWith("START")){
+				while(true){
+					if(message.startsWith("MOVE")){				
+						updateOpponentsMove(message.substring(4));			
+					}else if(message.startsWith("END")){
+						return;
+					}
+				}
+			}
+		}
+		
+	}
 	public Board getBoard() {
 		return board;
 	}
@@ -130,7 +168,11 @@ public class Game {
 			}
 			// Move the piece from start to finish position
 			board.removePiece(start.getxCoordinate(), start.getyCoordinate());
+			piece.moved();
 			board.setPiece(end.getxCoordinate(), end.getyCoordinate(), piece);
+			
+			changeTurn();
+			
 		}
 	}
 	
