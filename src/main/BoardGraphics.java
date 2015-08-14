@@ -287,92 +287,95 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  public void update(Graphics g) {
 	    Graphics2D g2 = (Graphics2D) g;
 	    g2.setStroke(new BasicStroke(8.0f));
-	    
-
 	    for(int i=0; i<64; i+=2){
-    	  Rectangle whiteSpace = new Rectangle();
-    	  Rectangle blackSpace = new Rectangle();
-    	  	if((i/8) %2 == 0){
-				whiteSpace.setBounds((i*50) % 400 + 10,i/8 * 50 + 10,40,40);
-				blackSpace.setBounds(((i+1)*50) % 400 + 10,(i+1)/8 * 50 + 10,40,40);
-				BoardGrid.add(whiteSpace);
-				BoardGrid.add(blackSpace);
-    	  	}else{
-    	  		whiteSpace.setBounds(((i+1)*50) % 400 + 10,i/8 * 50 + 10,40,40);
-    	  		blackSpace.setBounds((i*50) % 400 + 10,(i+1)/8 * 50 + 10,40,40);
-				BoardGrid.add(blackSpace);
-				BoardGrid.add(whiteSpace);
-    	  	}
-			g2.setPaint(Color.black);
-			g2.draw(blackSpace);
-			g2.fill(blackSpace);
-			g2.setPaint(Color.white);
-			g2.draw(whiteSpace);
+	    	  Rectangle whiteSpace = new Rectangle();
+	    	  Rectangle blackSpace = new Rectangle();
+	    	  	if((i/8) %2 == 0){
+					whiteSpace.setBounds((i*50) % 400 + 10,i/8 * 50 + 10,40,40);
+					blackSpace.setBounds(((i+1)*50) % 400 + 10,(i+1)/8 * 50 + 10,40,40);
+	    	  	}else{
+	    	  		whiteSpace.setBounds(((i+1)*50) % 400 + 10,i/8 * 50 + 10,40,40);
+	    	  		blackSpace.setBounds((i*50) % 400 + 10,(i+1)/8 * 50 + 10,40,40);
+	    	  	}
+				g2.setPaint(Color.black);
+				g2.draw(blackSpace);
+				g2.fill(blackSpace);
+				g2.setPaint(Color.white);
+				g2.draw(whiteSpace);
+	      }
+	    if (firstTime) {
+			for(int i=0; i<64; i+=2){
+		    	  Rectangle whiteSpace = new Rectangle();
+		    	  Rectangle blackSpace = new Rectangle();
+		    	  	if((i/8) %2 == 0){
+						whiteSpace.setBounds((i*50) % 400 + 10,i/8 * 50 + 10,40,40);
+						blackSpace.setBounds(((i+1)*50) % 400 + 10,(i+1)/8 * 50 + 10,40,40);
+						BoardGrid.add(whiteSpace);
+						BoardGrid.add(blackSpace);
+		    	  	}else{
+		    	  		whiteSpace.setBounds(((i+1)*50) % 400 + 10,i/8 * 50 + 10,40,40);
+		    	  		blackSpace.setBounds((i*50) % 400 + 10,(i+1)/8 * 50 + 10,40,40);
+						BoardGrid.add(blackSpace);
+						BoardGrid.add(whiteSpace);
+		    	  	}
+					g2.setPaint(Color.black);
+					g2.draw(blackSpace);
+					g2.fill(blackSpace);
+					g2.setPaint(Color.white);
+					g2.draw(whiteSpace);
+		      }
+		      for( int i=0; i<16; i++){
+		    	  Rectangle piece = new Rectangle();
+		    	  piece.setBounds(i*50 % 400 + 15, i/8 * 50 + 15, 30, 30);
+		    	  enemyRectangles.add(piece);
+		    	  g2.setPaint(Color.orange);
+		    	  g2.draw(piece);
+		    	  g2.fill(piece);
+		      }
+		      
+		      for( int i=48; i<64; i++){
+		    	  Rectangle piece = new Rectangle();
+		    	  piece.setBounds(i*50 % 400 + 15, i/8 * 50 + 15, 30, 30);
+		    	  playerRectangles.add(piece);
+		    	  g2.setPaint(Color.blue);
+		    	  g2.draw(piece);
+		    	  g2.fill(piece);
+		      }
+		      //Rectangle board = new Rectangle(5,5,400,400);
+		      //g2.setPaint(Color.black);
+		      //g2.draw(board);
+		      firstTime = false;
+	    }else{
+		    	
+			    //row even
+			    if((startSquare/8) %2 == 0){
+			    	//column even
+			    	if(startSquare%8 % 2 == 0){
+			    		//System.out.println("Even row, even column, black");
+			    		g2.setPaint(Color.white);
+			    	}else{//column odd
+			    		//System.out.println("Even row, odd column, white");
+			    		g2.setPaint(Color.black);
+			    	}
+			    }else{ // row odd
+			    	//column even
+			    	if(startSquare%8 % 2 == 0){
+			    		//System.out.println("Odd row, even column, white");
+			    		g2.setPaint(Color.black);
+			    	}else{//column odd
+			    		//System.out.println("Odd row, odd column, black");
+			    		g2.setPaint(Color.white);
+			    	}
+			    }
+			    g2.draw(BoardGrid.get(startSquare));
+			    g2.fill(BoardGrid.get(startSquare));
+			    
+			    
+			    System.out.println(playerRectangles.get(pieceHeld).getBounds());
+			    g2.setPaint(Color.blue);
+			    g2.draw(playerRectangles.get(pieceHeld));
+			    g2.fill(playerRectangles.get(pieceHeld));
 	    }
-	    for( int i=0; i<16; i++){
-    	  Rectangle piece = new Rectangle();
-    	  piece.setBounds(i*50 % 400 + 15, i/8 * 50 + 15, 30, 30);
-    	  enemyRectangles.add(piece);
-    	  g2.setPaint(Color.orange);
-    	  g2.draw(piece);
-    	  g2.fill(piece);
-	    }
-      
-	    for( int i=48; i<64; i++){
-    	  Rectangle piece = new Rectangle();
-    	  piece.setBounds(i*50 % 400 + 15, i/8 * 50 + 15, 30, 30);
-    	  playerRectangles.add(piece);
-    	  g2.setPaint(Color.blue);
-    	  g2.draw(piece);
-    	  g2.fill(piece);
-	    }
-     // for(int i=0; i<64; i++){
-    //	  System.out.println(BoardGrid.get(i).x);
-    //  }
-	    /*Rectangle board = new Rectangle(5,5,400,400);
-	    g2.setPaint(Color.black);
-	    g2.draw(board);*/
-      //rect.setBounds(15, 15, 30, 30);
-
-	    
-	  //Rectangle r = playerRectangles.get(0);
-	    //g2.setPaint(Color.yellow);
-	    //g2.draw(playerRectangles.get(0));
-	    //g2.fill(playerRectangles.get(0));
-	    //System.out.println(img.);
-	  //g2.drawImage(img, r.x, r.y, r.width, r.height, null);
-	    //firstTime = false;
-
-    	
-	    //row even
-	    if((startSquare/8) %2 == 0){
-	    	//column even
-	    	if(startSquare%8 % 2 == 0){
-	    		//System.out.println("Even row, even column, black");
-	    		g2.setPaint(Color.white);
-	    	}else{//column odd
-	    		//System.out.println("Even row, odd column, white");
-	    		g2.setPaint(Color.black);
-	    	}
-	    }else{ // row odd
-	    	//column even
-	    	if(startSquare%8 % 2 == 0){
-	    		//System.out.println("Odd row, even column, white");
-	    		g2.setPaint(Color.black);
-	    	}else{//column odd
-	    		//System.out.println("Odd row, odd column, black");
-	    		g2.setPaint(Color.white);
-	    	}
-	    }
-	    g2.draw(BoardGrid.get(startSquare));
-	    g2.fill(BoardGrid.get(startSquare));
-	    
-	    
-	    System.out.println(playerRectangles.get(pieceHeld).getBounds());
-	    g2.setPaint(Color.blue);
-	    g2.draw(playerRectangles.get(pieceHeld));
-	    g2.fill(playerRectangles.get(pieceHeld));
-    
 	    g2.setPaint(Color.yellow);
 	    for(int i=0; i<possibleMoves.size(); i++){
 	    	g2.draw(possibleMoves.get(i));
