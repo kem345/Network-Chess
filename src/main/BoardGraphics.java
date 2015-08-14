@@ -4,28 +4,47 @@ import java.awt.*;
 import java.awt.event.*;
 import java.applet.Applet;
 import java.awt.image.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Vector;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 
 import Pieces.Piece;
 import main.Game;
 
-public class BoardGraphics extends Applet {
+public class BoardGraphics extends Applet implements ActionListener {
 
 	  //static protected Label label;
+	  Button a;
 
 	  public void init() {
+		a = new Button("A");
+		a.setSize(1, 1);
+		a.setBounds(0, 0, 1, 1);
+		a.addActionListener(this);
+		a.setPreferredSize(new Dimension(1,1));
 
+	    this.add(a);
 	    setLayout(new BorderLayout());
 	    add(new SMCanvas());
-
 	    //label = new Label("Drag rectangle around within the area");
 	    //add("South", label);
+	  }
+	  
+	  public void actionPerformed(ActionEvent e) {
+		  if (e.getSource() == a) 
+				System.out.println("Button 1 was pressed");
+			else
+				System.out.println("Button 2 was pressed");
 	  }
 
 	  public static void main(String s[]) {
 	    
 		Frame f = new Frame("Network Chess");
+		
 	    f.addWindowListener(new WindowAdapter() {
 
 	      public void windowClosing(WindowEvent e) {
@@ -43,34 +62,50 @@ public class BoardGraphics extends Applet {
 	}
 
 	class SMCanvas extends Canvas implements MouseListener, MouseMotionListener {
+	  //game logic pieces
 	  Game game1 = new Game();
 	  Board gameBoard = new Board();
-	  Rectangle rect = new Rectangle(0, 0, 100, 50);
-	  BufferedImage bi;
-	  Graphics2D big;
 	  // Holds the coordinates of the user's last mousePressed event.
 	  int last_x, last_y;
+	  //initialize check
 	  boolean firstTime = true;
+	  //are we moving a piece
 	  boolean pieceSelected = false;
+	  //piece we select
 	  int pieceHeld = 0;
 	  int startSquare = 0;
 	  int newSquare = 0;
-	  //TexturePaint fillPolka, strokePolka;
-	  Rectangle area;
+	  //board graphics
 	  ArrayList<Rectangle> BoardGrid = new ArrayList<Rectangle>();
+	  //piece graphics
 	  ArrayList<Rectangle> playerRectangles = new ArrayList<Rectangle>();
 	  ArrayList<Rectangle> enemyRectangles = new ArrayList<Rectangle>();
+	  ArrayList<Rectangle> possibleMoves = new ArrayList<Rectangle>();
+	  //piece logics
 	  Vector<Piece> playerPieces = new Vector<Piece>();
 	  Vector<Piece> enemyPieces = new Vector<Piece>();
-	  
+	  //buttons
+	  Button endTurn = new Button();
+	  Button undo = new Button();
+	  //piece images
+	  Image wPawnImg = null;
+	  Image wRookImg = null;
+	  Image wKnightImg = null;
+	  Image wBishopImg = null;
+	  Image wKingImg = null;
+	  Image wQueenImg = null;
+	  Image bPawnImg = null;
+	  Image bRookImg = null;
+	  Image bKnightImg = null;
+	  Image bBishopImg = null;
+	  Image bKingImg = null;
+	  Image bQueenImg = null;
+	  //locations where you select and move piece
 	  Space startSpace;
 	  Space newSpace;
-	  
-	  
-	  // True if the user pressed, dragged or released the mouse outside of the rectangle; false otherwise.
-	  boolean pressOut = false;
 
 	  public SMCanvas() {
+		//start logic stuff
 		try {
 			game1.startGame();
 		} catch (Exception e) {
@@ -79,52 +114,36 @@ public class BoardGraphics extends Applet {
 		}
 		gameBoard = game1.getBoard();
 		
+		//define piece images
+		wPawnImg = new ImageIcon("../images/whitePawn.png").getImage();
+		wRookImg = new ImageIcon("../images/whitePawn.png").getImage();
+		wKnightImg = new ImageIcon("../images/whitePawn.png").getImage();
+		wBishopImg = new ImageIcon("../images/whitePawn.png").getImage();
+		wKingImg = new ImageIcon("../images/whitePawn.png").getImage();
+		wQueenImg = new ImageIcon("../images/whitePawn.png").getImage();
+		bPawnImg = new ImageIcon("../images/blackPawn.png").getImage();
+		bRookImg = new ImageIcon("../images/whitePawn.png").getImage();
+		bKnightImg = new ImageIcon("../images/whitePawn.png").getImage();
+		bBishopImg = new ImageIcon("../images/whitePawn.png").getImage();
+		bKingImg = new ImageIcon("../images/whitePawn.png").getImage();
+		bQueenImg = new ImageIcon("../images/whitePawn.png").getImage();
 		
+		//background
 	    setBackground(Color.white);
+	    //listeners
 	    addMouseMotionListener(this);
 	    addMouseListener(this);
-
-	    // Creates the fill texture paint pattern.
-	    /*bi = new BufferedImage(5, 5, BufferedImage.TYPE_INT_RGB);
-	    big = bi.createGraphics();
-	    //big.setColor(Color.pink);
-	    //big.fillRect(0, 0, 7, 7);
-	    big.setColor(Color.cyan);
-	    big.fillOval(0, 0, 3, 3);
-	    Rectangle r = new Rectangle(0, 0, 5, 5);
-	    r.setLocation(10,10);
-	    fillPolka = new TexturePaint(bi, r);
-	    big.dispose();
-*/
-
 	  }
 
 	  // Handles the event of the user pressing down the mouse button.
 	  public void mousePressed(MouseEvent e) {
-	    //last_x = rect.x - e.getX();
-	    //last_y = rect.y - e.getY();
-
-	    // Checks whether or not the cursor is inside of the rectangle while the
-	    // user is pressing the mouse.
-	    if (rect.contains(e.getX(), e.getY())) {
-	      pressOut = false;
-	      updateLocation(e);
-	    } else {
-	    	//BoardGraphics.label.setText("First position the cursor on the rectangle "
-	        //+ "and then drag.");
-	      pressOut = true;
-	    }
+		  
 	  }
 
 	  // Handles the event of a user dragging the mouse while holding down the
 	  // mouse button.
 	  public void mouseDragged(MouseEvent e) {
-	    if (!pressOut) {
-	      updateLocation(e);
-	    } else {
-	    	//BoardGraphics.label.setText("First position the cursor on the rectangle "
-	        //+ "and then drag.");
-	    }
+	    
 	  }
 
 	  // Handles the event of a user releasing the mouse button.
@@ -132,7 +151,8 @@ public class BoardGraphics extends Applet {
 
 	    // Checks whether or not the cursor is inside of the rectangle when the
 	    // user releases the mouse button.
-		
+
+		possibleMoves.clear();
 		if(pieceSelected){
 			//playerRectangles.get(pieceHeld).setLocation(e.getX(), e.getY());
 			//repaint place piece was
@@ -149,7 +169,7 @@ public class BoardGraphics extends Applet {
 			
 			newSpace = gameBoard.getSpace(newSquare % 8, newSquare / 8);
 			//System.out.println("QWE");
-			if(movingPiece.checkMove(startSpace, newSpace)){
+			if(movingPiece.makeMove(startSpace, newSpace)){
 				playerRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);
 				newSpace.placePiece(movingPiece);
 				startSpace.removePiece();
@@ -166,14 +186,24 @@ public class BoardGraphics extends Applet {
 					for (int j=0; j<BoardGrid.size(); j++){
 						if(BoardGrid.get(j).contains(playerRectangles.get(i))){
 							startSquare = j;
-							System.out.println(startSquare % 8);
-							System.out.println(startSquare / 8);
+							//System.out.println(startSquare % 8);
+							//System.out.println(startSquare / 8);
 						}
 					}
 					startSpace = gameBoard.getSpace(startSquare % 8, startSquare / 8);
 					System.out.println(startSpace.hasPiece());
+					//possible move highlighter
+					possibleMoves.clear();
+					for(int k=0; k<64; k++){
+						newSpace = gameBoard.getSpace(k % 8, k / 8);
+						Piece movingPiece = startSpace.getPiece();
+						if(movingPiece.makeMove(startSpace, newSpace)){
+							possibleMoves.add(BoardGrid.get(k));
+						}
+					}
 				}
 			}
+			repaint();
 			/*for(int i =0; i< gameBoard.getSpaces().size(); i++){
 				System.out.println(gameBoard.getSpaces().get(i).hasPiece()
 						+ " " + 
@@ -218,7 +248,6 @@ public class BoardGraphics extends Applet {
 
 	  // Updates the coordinates representing the location of the current rectangle.
 	  public void updateLocation(MouseEvent e) {
-	    rect.setLocation(last_x + e.getX(), last_y + e.getY());
 	    /*
 	     * Updates the label to reflect the location of the
 	     * current rectangle
@@ -242,14 +271,9 @@ public class BoardGraphics extends Applet {
 
 	  public void update(Graphics g) {
 	    Graphics2D g2 = (Graphics2D) g;
-	    Dimension dim = getSize();
-	    int w = (int) dim.getWidth();
-	    int h = (int) dim.getHeight();
 	    g2.setStroke(new BasicStroke(8.0f));
 	    
 	    if (firstTime) {
-	      area = new Rectangle(dim);
-	      
 	      for(int i=0; i<64; i+=2){
 	    	  Rectangle whiteSpace = new Rectangle();
 	    	  Rectangle blackSpace = new Rectangle();
@@ -294,6 +318,14 @@ public class BoardGraphics extends Applet {
 	      g2.setPaint(Color.black);
 	      g2.draw(board);
 	      //rect.setBounds(15, 15, 30, 30);
+
+		    
+		  //Rectangle r = playerRectangles.get(0);
+		    //g2.setPaint(Color.yellow);
+		    //g2.draw(playerRectangles.get(0));
+		    //g2.fill(playerRectangles.get(0));
+		    //System.out.println(img.);
+		  //g2.drawImage(img, r.x, r.y, r.width, r.height, null);
 	      firstTime = false;
 	    }else{
 	    	
@@ -326,28 +358,17 @@ public class BoardGraphics extends Applet {
 		    g2.draw(playerRectangles.get(pieceHeld));
 		    g2.fill(playerRectangles.get(pieceHeld));
 	    }
-	    /*System.out.println(0%8%2);
-	    System.out.println(1%8%2);
-	    System.out.println(2%8%2);
-	    System.out.println(3%8%2);
-	    System.out.println(4%8%2);*/
+	    g2.setPaint(Color.yellow);
+	    for(int i=0; i<possibleMoves.size(); i++){
+	    	g2.draw(possibleMoves.get(i));
+		    g2.fill(possibleMoves.get(i));
+	    }
 	    
-	    /*for(int i=0; i<64; i++){
-	    	System.out.println(BoardGrid.get(i).getBounds());
-	    }*/
-	    
-	    
-	    
-	    // Clears the rectangle that was previously drawn.
-	    //g2.setPaint(Color.white);
-	    //g2.fillRect(0, 0, w, h);
-	    
-	    // Draws and fills the newly positioned rectangle.
-	    /*g2.setPaint(Color.black);
-	    g2.draw(rect);
-	    g2.setPaint(Color.blue);
-	    g2.fill(rect);*/
+	    Rectangle r = playerRectangles.get(0);
+	    g2.drawImage(wPawnImg, r.x, r.y, r.width, r.height, null);
 
+	    r = playerRectangles.get(1);
+	    g2.drawImage(bPawnImg, r.x, r.y, r.width, r.height, null);
 	  }
 
 	  /*
@@ -355,31 +376,5 @@ public class BoardGraphics extends Applet {
 	   * is not contained withing the applet window, it is redrawn so that it is adjacent
 	   * to the edge of the window and just inside the window.
 	   */
-	  boolean checkRect() {
-
-	    if (area == null) {
-	      return false;
-	    }
-
-	    if (area.contains(rect.x, rect.y, 100, 50)) {
-	      return true;
-	    }
-	    int new_x = rect.x;
-	    int new_y = rect.y;
-
-	    if ((rect.x + 100) > area.getWidth()) {
-	      new_x = (int) area.getWidth() - 99;
-	    }
-	    if (rect.x < 0) {
-	      new_x = -1;
-	    }
-	    if ((rect.y + 50) > area.getHeight()) {
-	      new_y = (int) area.getHeight() - 49;
-	    }
-	    if (rect.y < 0) {
-	      new_y = -1;
-	    }
-	    rect.setLocation(new_x, new_y);
-	    return false;
-	  }
+	  
 }
