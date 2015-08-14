@@ -65,6 +65,9 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  //game logic pieces
 	  Game game1 = new Game();
 	  Board gameBoard = new Board();
+	  //Variable to determine team of picked piece
+	  String whoseTeam = "";
+	  
 	  // Holds the coordinates of the user's last mousePressed event.
 	  int last_x, last_y;
 	  //initialize check
@@ -125,7 +128,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 		bRookImg = new ImageIcon("../images/blackRook.png").getImage();
 		bKnightImg = new ImageIcon("../images/blackKnight.png").getImage();
 		bBishopImg = new ImageIcon("../images/blackBishop.png").getImage();
-		bKingImg = new ImageIcon("../images/blackKing.jpg").getImage();
+		bKingImg = new ImageIcon("../images/blackKing.png").getImage();
 		bQueenImg = new ImageIcon("../images/blackQueen.png").getImage();
 		
 		//background
@@ -176,7 +179,14 @@ public class BoardGraphics extends Applet implements ActionListener {
 						
 					//}
 					game1.makeMove(startSpace, newSpace);
-					playerRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);
+					if(whoseTeam == "white"){
+						playerRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);	
+					}else{
+						enemyRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);							
+					}
+					
+					
+					
 					//newSpace.placePiece(movingPiece);
 					//startSpace.removePiece();
 					System.out.println("CHECKING CHECK");
@@ -191,7 +201,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 				e1.printStackTrace();
 			}
 			
-			
+			whoseTeam = "";
 			repaint();
 		}else{
 			for(int i=0; i<playerRectangles.size(); i++){
@@ -222,6 +232,43 @@ public class BoardGraphics extends Applet implements ActionListener {
 							e1.printStackTrace();
 						}
 					}
+					if(possibleMoves.isEmpty()){
+						possibleMoves.add(BoardGrid.get(startSquare));
+					}
+					whoseTeam = "white";
+				}
+				//DELETE THIS LATER
+				if(enemyRectangles.get(i).contains(e.getX(), e.getY())){
+					System.out.println("Got Piece " + i);
+					pieceSelected = true;
+					pieceHeld = i;
+					for (int j=0; j<BoardGrid.size(); j++){
+						if(BoardGrid.get(j).contains(enemyRectangles.get(i))){
+							startSquare = j;
+							//System.out.println(startSquare % 8);
+							//System.out.println(startSquare / 8);
+						}
+					}
+					startSpace = gameBoard.getSpace(startSquare % 8, startSquare / 8);
+					System.out.println(startSpace.hasPiece());
+					//possible move highlighter
+					possibleMoves.clear();
+					for(int k=0; k<64; k++){
+						newSpace = gameBoard.getSpace(k % 8, k / 8);
+						//Piece movingPiece = startSpace.getPiece();
+						try {
+							if(game1.isValidMove(startSpace, newSpace)){
+								possibleMoves.add(BoardGrid.get(k));
+							}
+						} catch (Exception e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}
+					if(possibleMoves.isEmpty()){
+						possibleMoves.add(BoardGrid.get(startSquare));
+					}
+					whoseTeam = "black";
 				}
 			}
 			repaint();
@@ -335,18 +382,18 @@ public class BoardGraphics extends Applet implements ActionListener {
 		    	  Rectangle piece = new Rectangle();
 		    	  piece.setBounds(i*50 % 400 + 15, i/8 * 50 + 15, 30, 30);
 		    	  enemyRectangles.add(piece);
-		    	  g2.setPaint(Color.orange);
-		    	  g2.draw(piece);
-		    	  g2.fill(piece);
+		    	  //g2.setPaint(Color.orange);
+		    	  //g2.draw(piece);
+		    	  //g2.fill(piece);
 		      }
 		      
 		      for( int i=48; i<64; i++){
 		    	  Rectangle piece = new Rectangle();
 		    	  piece.setBounds(i*50 % 400 + 15, i/8 * 50 + 15, 30, 30);
 		    	  playerRectangles.add(piece);
-		    	  g2.setPaint(Color.blue);
-		    	  g2.draw(piece);
-		    	  g2.fill(piece);
+		    	  //g2.setPaint(Color.blue);
+		    	  //g2.draw(piece);
+		    	  //g2.fill(piece);
 		      }
 		      //Rectangle board = new Rectangle(5,5,400,400);
 		      //g2.setPaint(Color.black);
@@ -378,10 +425,10 @@ public class BoardGraphics extends Applet implements ActionListener {
 			    g2.fill(BoardGrid.get(startSquare));
 			    
 			    
-			    System.out.println(playerRectangles.get(pieceHeld).getBounds());
-			    g2.setPaint(Color.blue);
-			    g2.draw(playerRectangles.get(pieceHeld));
-			    g2.fill(playerRectangles.get(pieceHeld));
+			    //System.out.println(playerRectangles.get(pieceHeld).getBounds());
+			    //g2.setPaint(Color.blue);
+			    //g2.draw(playerRectangles.get(pieceHeld));
+			    //g2.fill(playerRectangles.get(pieceHeld));
 	    }
 	    g2.setPaint(Color.yellow);
 	    for(int i=0; i<possibleMoves.size(); i++){
