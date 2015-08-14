@@ -125,7 +125,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 		bRookImg = new ImageIcon("../images/blackRook.png").getImage();
 		bKnightImg = new ImageIcon("../images/blackKnight.png").getImage();
 		bBishopImg = new ImageIcon("../images/blackBishop.png").getImage();
-		bKingImg = new ImageIcon("../images/blackKing.png").getImage();
+		bKingImg = new ImageIcon("../images/blackKing.jpg").getImage();
 		bQueenImg = new ImageIcon("../images/blackQueen.png").getImage();
 		
 		//background
@@ -153,6 +153,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 	    // user releases the mouse button.
 
 		possibleMoves.clear();
+		//if(isTurn)
 		if(pieceSelected){
 			//playerRectangles.get(pieceHeld).setLocation(e.getX(), e.getY());
 			//repaint place piece was
@@ -178,7 +179,12 @@ public class BoardGraphics extends Applet implements ActionListener {
 					playerRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);
 					//newSpace.placePiece(movingPiece);
 					//startSpace.removePiece();
-					//game1.getBoard()
+					System.out.println("CHECKING CHECK");
+					if(game1.getBoard().teamInCheck(Game.Team.TEAM2)){
+						System.out.println("Team 2 is in check");
+					}else if(game1.getBoard().teamInCheck(Game.Team.TEAM1)){
+						System.out.println("Team 1 is in check");	
+					}
 				}
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
@@ -302,6 +308,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 				g2.fill(blackSpace);
 				g2.setPaint(Color.white);
 				g2.draw(whiteSpace);
+				g2.fill(whiteSpace);
 	      }
 	    if (firstTime) {
 			for(int i=0; i<64; i+=2){
@@ -421,16 +428,16 @@ public class BoardGraphics extends Applet implements ActionListener {
 	    r = enemyRectangles.get(5);
 	    g2.drawImage(bBishopImg, r.x, r.y, r.width, r.height, null);
 	    
-	    r = playerRectangles.get(12);
+	    r = playerRectangles.get(11);
 	    g2.drawImage(wQueenImg, r.x, r.y, r.width, r.height, null);
 
-	    r = enemyRectangles.get(4);
+	    r = enemyRectangles.get(3);
 	    g2.drawImage(bQueenImg, r.x, r.y, r.width, r.height, null);
 	    
-	    r = playerRectangles.get(11);
+	    r = playerRectangles.get(12);
 	    g2.drawImage(wKingImg, r.x, r.y, r.width, r.height, null);
 	    
-	    r = enemyRectangles.get(3);
+	    r = enemyRectangles.get(4);
 	    g2.drawImage(bKingImg, r.x, r.y, r.width, r.height, null);
 	    
 	    Rectangle board = new Rectangle(5,5,400,400);
