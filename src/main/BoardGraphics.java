@@ -68,6 +68,9 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  //Variable to determine team of picked piece
 	  String whoseTeam = "";
 	  
+	  //Keep track of number of captured pieces for later use
+	  int capturedEnemies = 0;
+	  
 	  // Holds the coordinates of the user's last mousePressed event.
 	  int last_x, last_y;
 	  //initialize check
@@ -175,10 +178,24 @@ public class BoardGraphics extends Applet implements ActionListener {
 			//System.out.println("QWE");
 			try {
 				if(game1.isValidMove(startSpace, newSpace)){
-					//if(newSpace.hasPiece()){
-						
-					//}
+					//logic for capturing pieces
+					if(newSpace.hasPiece()){
+						for (int j=0; j<enemyRectangles.size(); j++){
+							if(BoardGrid.get(newSquare).contains(enemyRectangles.get(j))){
+								enemyRectangles.get(j).setLocation(600 + (capturedEnemies/2) * 50, 50 * (capturedEnemies%2));
+								capturedEnemies++;
+							}
+						}
+						for (int j=0; j<playerRectangles.size(); j++){
+							if(BoardGrid.get(newSquare).contains(playerRectangles.get(j))){
+								playerRectangles.get(j).setLocation(600 + (capturedEnemies/2) * 50, 50 * (capturedEnemies%2));
+								capturedEnemies++;
+							}
+						}
+					}
+					
 					game1.makeMove(startSpace, newSpace);
+					
 					if(whoseTeam == "white"){
 						playerRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);	
 					}else{
@@ -382,9 +399,6 @@ public class BoardGraphics extends Applet implements ActionListener {
 		    	  Rectangle piece = new Rectangle();
 		    	  piece.setBounds(i*50 % 400 + 15, i/8 * 50 + 15, 30, 30);
 		    	  enemyRectangles.add(piece);
-		    	  //g2.setPaint(Color.orange);
-		    	  //g2.draw(piece);
-		    	  //g2.fill(piece);
 		      }
 		      
 		      for( int i=48; i<64; i++){
@@ -490,12 +504,12 @@ public class BoardGraphics extends Applet implements ActionListener {
 	    Rectangle board = new Rectangle(5,5,400,400);
 	    g2.setPaint(Color.black);
 	    g2.draw(board);
+	    
+	    
+	    /*Rectangle piece = new Rectangle(0,0,30,30);
+  	  	piece.setLocation(600, 100);
+  	  	g2.setPaint(Color.orange);
+  	  	g2.draw(piece);
+  	  	g2.fill(piece);*/
 	  }
-
-	  /*
-	   * Checks if the rectangle is contained within the applet window.  If the rectangle
-	   * is not contained withing the applet window, it is redrawn so that it is adjacent
-	   * to the edge of the window and just inside the window.
-	   */
-	  
 }
