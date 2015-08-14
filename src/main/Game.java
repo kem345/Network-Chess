@@ -107,7 +107,7 @@ public class Game {
 	
 	// TODO: plan-- The clickable graphics will give coordinates of start and end spaces
 	// TODO: Make sure move doesn't put you in check
-	public boolean makeMove(Space start, Space end) throws Exception {
+	public void makeMove(Space start, Space end) throws Exception {
 		// If the start space does not have a piece then no move can be made
 		if(!start.hasPiece()) {
 			throw new Exception("Start space does not have a piece to move");
@@ -129,13 +129,9 @@ public class Game {
 				}
 			}
 			// Move the piece from start to finish position
-			start.removePiece();
-			end.placePiece(piece);
-			
-			return true;
+			board.removePiece(start.getxCoordinate(), start.getyCoordinate());
+			board.setPiece(end.getxCoordinate(), end.getyCoordinate(), piece);
 		}
-		
-		return false;
 	}
 	
 	/**
