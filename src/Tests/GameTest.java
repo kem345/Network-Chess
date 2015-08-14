@@ -51,5 +51,4 @@ public class GameTest {
 		assertTrue(g.getTurn() == Team.TEAM1);
 	}
 
-
 }

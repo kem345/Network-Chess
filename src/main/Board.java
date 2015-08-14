@@ -214,7 +214,7 @@ public class Board {
 		return false;
 	}
 	
-	private Space getTeamKingSpace(Team team) {
+	public Space getTeamKingSpace(Team team) {
 		Map<Space,Piece> pieces = getTeamPieces(team);
 		// get the team's king location
 		Space kingSpace = new Space(0, 0);
@@ -281,4 +281,95 @@ public class Board {
 		
 		return true;
 	}
+	
+	/** Check if the given team is allowed to make a castle move **/
+	public boolean canCastle(Team team, Rook rook) {		
+		Space kingSpace = getTeamKingSpace(team);
+		// A team cannot castle out of check
+		if(spaceInCheck(kingSpace, team))
+			return false;
+		
+		Space rookSpace = new Space(-1,-1);
+		// get all of the pieces for the given team and the spaces they are on
+		Map<Space, Piece> teamPieces = getTeamPieces(team);
+		// Loop through all of the space/piece pairs and look for the given rook and king
+		Rook teamRook = new Rook(0, team);
+		King teamKing = new King(0, team);
+		for(Entry<Space, Piece> ent : teamPieces.entrySet()) {
+			if(ent.getValue().equals(rook)) {
+				rookSpace = ent.getKey();
+				teamRook = (Rook) ent.getValue();
+			}
+			if(ent.getValue() instanceof King)
+				teamKing = (King) ent.getValue();
+		}
+		
+		// If the given rook could not be found then do not approve the move
+		if(rookSpace.getxCoordinate() == -1 && rookSpace.getyCoordinate() == -1)
+			return false;
+		
+		// test the spaces the king will move through in order to castle
+		// if the king will need to move through check then the move is not allowed
+		boolean moveThroughCheck = false;
+		if(rookSpace.getxCoordinate() < kingSpace.getxCoordinate()) {
+			if(spaceInCheck(new Space(kingSpace.getxCoordinate() - 1, kingSpace.getyCoordinate()), team) ||
+					spaceInCheck(new Space(kingSpace.getxCoordinate() - 2, kingSpace.getyCoordinate()), team))
+					moveThroughCheck = true;
+		} else {
+			if(spaceInCheck(new Space(kingSpace.getxCoordinate() + 1, kingSpace.getyCoordinate()), team) ||
+					spaceInCheck(new Space(kingSpace.getxCoordinate() + 2, kingSpace.getyCoordinate()), team))
+					moveThroughCheck = true;
+		}
+		
+		// Check that the king does not have to move through check
+		// Check that there are no pieces between the king and rook
+		// Check that neither the king or rook have been moved yet
+		if(moveThroughCheck || teamKing.getMoveCount() > 0 || teamRook.getMoveCount() > 0 ||
+				!clearBetween(kingSpace, rookSpace)) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	/** Check if the given team can execute an En Passant move to the given space **/
+	// TODO: can't tell if there has been a move since the two space pawn move	
+	public boolean canEnpassant(Team team, Space space) {
+		// the space has to be 1 row away from where a pawn would start
+		// there has to be a pawn from the other team that had just moved 2 spaces on the space in front of it
+		if(space.getyCoordinate() == 2 && getSpace(space.getxCoordinate(), 3).hasPiece()) {
+			Piece piece = getSpace(space.getxCoordinate(), 3).getPiece();
+			if(piece instanceof Pawn && !piece.getTeam().equals(team) && piece.getMoveCount() == 1) {
+				return true;
+			}
+		}
+		
+		// the space has to be 1 row away from where a pawn would start
+		// there has to be a pawn from the other team that had just moved 2 spaces on the space in front of it
+		if(space.getyCoordinate() == 5 && getSpace(space.getxCoordinate(), 4).hasPiece()) {
+			Piece piece = getSpace(space.getxCoordinate(), 4).getPiece();
+			if(piece instanceof Pawn && !piece.getTeam().equals(team) && piece.getMoveCount() == 1) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public void promotePiece(Space space, Piece newPiece) {
+		// A pawn can only be promoted if it is in the last row
+		if(space.getyCoordinate() != 0 && space.getyCoordinate() != 7) {
+			return;
+		}
+		
+		// Only pawns can be promoted
+		if(!space.hasPiece() || !(space.getPiece() instanceof Pawn) ||
+				!space.getPiece().getTeam().equals(newPiece.getTeam()))
+			return;
+		
+		// Replace the pawn with the new piece
+		space.removePiece();
+		space.placePiece(newPiece);
+	}
+
 }
