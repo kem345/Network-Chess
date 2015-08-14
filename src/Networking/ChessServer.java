@@ -23,13 +23,15 @@ public class ChessServer {
 		try {
 			while(true){
 				Game game = new Game();
-				Game.Player playerBlack = game.new Player(listener.accept(), "BLACK");
-				Game.Player playerWhite = game.new Player(listener.accept(), "WHITE");
-				playerBlack.setOpponent(playerWhite);
-				playerWhite.setOpponent(playerBlack);
-				game.currentPlayer = playerBlack;
-				playerBlack.start();
-				playerWhite.start();
+				Game.Player TEAM1 = game.new Player(listener.accept(), "TEAM1");
+				Game.Player TEAM2 = game.new Player(listener.accept(), "TEAM2");
+				TEAM1.setOpponent(TEAM2);
+				TEAM2.setOpponent(TEAM1);
+				TEAM1.output.println("START");
+				TEAM2.output.println("START");
+				game.currentPlayer = TEAM1;
+				TEAM1.start();
+				TEAM2.start();
 			}
 		} finally {
 			listener.close();
@@ -56,8 +58,7 @@ class Game{
 			try{
 			input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			output = new PrintWriter(socket.getOutputStream(),true);
-			output.println("PAIRED " + mark);
-			output.println("WAITING"); //Waiting for opponent to connect.
+			output.println(mark);
 			}catch(IOException e){
 				System.out.println("Error: " + e);
 			}
