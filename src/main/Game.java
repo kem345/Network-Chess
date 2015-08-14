@@ -125,7 +125,6 @@ public class Game {
 			start.removePiece();
 			end.placePiece(piece);
 			
-			changeTurn();
 			return true;
 		}
 		
