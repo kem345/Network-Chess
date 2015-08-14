@@ -68,43 +68,30 @@ class Game{
 			this.opponent = opponent;
 		}
 		
-		public void OpponentMoved(String location){
-			output.println("OPPONENT_MOVED " + location);
-		}
 		
 		public synchronized boolean isTurnToMove(Player player,String move)
 		{
 			if(this == currentPlayer)
 			{
 				currentPlayer = currentPlayer.opponent; //Switch current player.
-				//currentPlayer.output.println(command.substring(5)); //current user has been switched to opponent.
-				currentPlayer.OpponentMoved(move);
+				currentPlayer.output.println(move);
 				return true;
 			}		
 			return false;
 		}
 		
 		public void run(){
-			try {
-				output.println("PAIRED"); // The thread is only start after everyone connects.
-				
-				if(mark == "BLACK"){
-					output.print("TURN_TO_MOVE");
-				}
+			try {			
 			
 				while(true){
-					String command = input.readLine();
-					if(command.startsWith("MOVE"))
+					if(this == currentPlayer)
 					{
-						if(isTurnToMove(this,command.substring(5))){
-							//if move valid, isTurnMove will send movement to opponent 
+						String command = input.readLine();
+							if(isTurnToMove(this,command)){
+								
+							}
 						}
-//						else{
-//							output.println("NOT_THE_TURN"); // discuss where to handle lock screen after move.
-//						}
-					}else if(command.startsWith("QUIT"))
-						return;
-				}
+					}					
 			} catch (Exception e) {
 			}
 		}
