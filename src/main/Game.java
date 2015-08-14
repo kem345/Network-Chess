@@ -168,6 +168,7 @@ public class Game {
 			}
 			// Move the piece from start to finish position
 			board.removePiece(start.getxCoordinate(), start.getyCoordinate());
+			piece.moved();
 			board.setPiece(end.getxCoordinate(), end.getyCoordinate(), piece);
 			
 			changeTurn();
