@@ -83,16 +83,10 @@ public class Game {
 		turn = Team.TEAM1;		
 		
 	}
-	
-	// TODO: plan-- The clickable graphics will give coordinates of start and end spaces
-	// TODO: Make sure move doesn't put you in check
-	public boolean makeMove(Space start, Space end) throws Exception {
-		// If the start space does not have a piece then no move can be made
-		if(!start.hasPiece()) {
-			throw new Exception("Start space does not have a piece to move");
-		}
+
+	/** Returns true if the piece on the start space is allowed to move to the end space **/
+	public boolean isValidMove(Space start, Space end) {
 		Piece piece = start.getPiece();
-		boolean approveMove = false;
 		
 		// Check the piece is allowed to move to the new space
 		// Only knights can jump over pieces so if it is not a knight, check that the path for the move is clear
@@ -101,13 +95,26 @@ public class Game {
 				board.clearBetween(start, end)) {
 			if((!end.hasPiece()) || (end.hasPiece() && 
 					(!end.getPiece().getTeam().equals(piece.getTeam()))))
-				approveMove = true;				
+				return true;			
 		} else if(piece instanceof Knight && piece.checkMove(start, end)) {
 			if((!end.hasPiece()) || (end.hasPiece() && 
 					(!end.getPiece().getTeam().equals(piece.getTeam()))))
-				approveMove = true;
+				return true;
 		}
 		
+		return false;
+	}
+	
+	// TODO: plan-- The clickable graphics will give coordinates of start and end spaces
+	// TODO: Make sure move doesn't put you in check
+	public boolean makeMove(Space start, Space end) throws Exception {
+		// If the start space does not have a piece then no move can be made
+		if(!start.hasPiece()) {
+			throw new Exception("Start space does not have a piece to move");
+		}
+		
+		boolean approveMove = isValidMove(start, end);
+		Piece piece = start.getPiece();
 		// If the piece is allowed to move to the new space then allow it
 		if(approveMove) {
 			// If there is a piece in the new spot then capture it
