@@ -131,6 +131,9 @@ public class Game {
 			// Move the piece from start to finish position
 			board.removePiece(start.getxCoordinate(), start.getyCoordinate());
 			board.setPiece(end.getxCoordinate(), end.getyCoordinate(), piece);
+			
+			changeTurn();
+			
 		}
 	}
 	
