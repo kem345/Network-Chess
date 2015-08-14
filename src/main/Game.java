@@ -126,6 +126,11 @@ public class Game {
 	public boolean isValidMove(Space start, Space end) {
 		Piece piece = start.getPiece();
 		
+		// check castle move
+		if(piece instanceof King && end.hasPiece() && end.getPiece() instanceof Rook &&
+				board.canCastle(piece.getTeam(), (Rook)end.getPiece()))
+			return true;
+		
 		// Check the piece is allowed to move to the new space
 		// Only knights can jump over pieces so if it is not a knight, check that the path for the move is clear
 		// Check that another piece from the same team is not already on the space
@@ -153,6 +158,24 @@ public class Game {
 		
 		boolean approveMove = isValidMove(start, end);
 		Piece piece = start.getPiece();
+		
+		// check castle move
+		if(piece instanceof King && end.hasPiece() && end.getPiece() instanceof Rook &&
+				board.canCastle(piece.getTeam(), (Rook)end.getPiece())) {
+			Rook r = (Rook)end.getPiece();
+			board.removePiece(start.getxCoordinate(), start.getyCoordinate());
+			board.removePiece(end.getxCoordinate(), end.getyCoordinate());
+			if(end.getxCoordinate() > start.getxCoordinate()) {	
+				board.setPiece(start.getxCoordinate() + 2, start.getyCoordinate(), piece);
+				board.setPiece(end.getxCoordinate() - 2, end.getyCoordinate(), r);
+			} else if(end.getxCoordinate() < start.getxCoordinate()) {	
+				board.setPiece(start.getxCoordinate() - 2, start.getyCoordinate(), piece);
+				board.setPiece(end.getxCoordinate() + 3, end.getyCoordinate(), r);
+			}
+			
+			return;
+		}
+		
 		// If the piece is allowed to move to the new space then allow it
 		if(approveMove) {
 			// If there is a piece in the new spot then capture it
