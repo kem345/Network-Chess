@@ -14,6 +14,7 @@ public class Game {
 	private Vector<Piece> team2CapturedPieces = new Vector<Piece>();
 	private Board board;
 	private Team turn;
+	private Team yourTeam;
 
 	// Constructor 
 	
@@ -62,6 +63,14 @@ public class Game {
 			turn = Team.TEAM1;
 	}
 
+	public Team getYourTeam() {
+		return yourTeam;
+	}
+
+	public void setYourTeam(Team yourTeam) {
+		this.yourTeam = yourTeam;
+	}
+
 	/** Setup the game in its initial state 
 	 * @throws Exception **/
 	public void startGame() throws Exception {
@@ -71,16 +80,13 @@ public class Game {
 		// Create the board and initialize all of the pieces		
 		board.createBoard();
 		initializePieces();
-		turn = Team.TEAM1;
-		
+		turn = Team.TEAM1;		
 		
 	}
 	
 	// TODO: plan-- The clickable graphics will give coordinates of start and end spaces
 	// TODO: Make sure move doesn't put you in check
-	public boolean makeMove(int startX, int startY, int endX, int endY) throws Exception {
-		Space start = board.getSpace(startX, startY);
-		Space end = board.getSpace(endX, endY);
+	public boolean makeMove(Space start, Space end) throws Exception {
 		// If the start space does not have a piece then no move can be made
 		if(!start.hasPiece()) {
 			throw new Exception("Start space does not have a piece to move");
@@ -124,7 +130,7 @@ public class Game {
 		
 		return false;
 	}
-
+	
 	/**
 	 * Initialize the teams pieces to the way they should be at the start of a
 	 * game
@@ -163,6 +169,26 @@ public class Game {
 		// Give both teams a King in the correct starting position
 		board.setPiece(4, 0, new King(0, Team.TEAM1));
 		board.setPiece(4, 7, new King(0, Team.TEAM2));
+	}
+	
+	
+	/** Update the board based on the opponent's move that has been received from the server 
+	 * @throws Exception **/
+	public void updateOpponentsMove(String move) throws Exception {
+		if(move.length() != 4){
+			throw new Exception("Invalid message recieved from server");
+		}
+		
+		int startx = Character.getNumericValue(move.charAt(0));
+		int starty = Character.getNumericValue(move.charAt(1));
+		int endx = Character.getNumericValue(move.charAt(2));
+		int endy = Character.getNumericValue(move.charAt(3));
+		
+		Space start = board.getSpace(startx, starty);
+		Piece p = start.getPiece();
+		
+		board.removePiece(startx, starty);
+		board.setPiece(endx, endy, p);
 	}
 
 }

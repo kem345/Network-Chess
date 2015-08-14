@@ -208,5 +208,92 @@ public class BoardTest {
 		board.setPiece(2, 1, new Rook(0, Team.TEAM2));
 		assertTrue(board.teamInCheckmate(Team.TEAM1));
 	}
+	
+	@Test
+	public void testCastleMove() throws Exception {
+		Rook r0 = new Rook(0, Team.TEAM1);
+		Rook r1 = new Rook(1, Team.TEAM1);
+		King k0 = new King(0, Team.TEAM1);
+		Queen q20 = new Queen(0, Team.TEAM2);
+		Rook r20 = new Rook(0, Team.TEAM2);
+		Pawn p20 = new Pawn(0, Team.TEAM2);
+		board = new Board();
+		board.createBoard();
+		
+		// Test false is return for not real rook
+		assertFalse(board.canCastle(Team.TEAM1, new Rook(4, Team.TEAM1)));
+		board.setPiece(4, 0, k0);
+		board.setPiece(0, 0, r0);
+		board.setPiece(7, 0, r1);
+		// Test that correct castle moves are allowed
+		assertTrue(board.canCastle(Team.TEAM1, r0));
+		assertTrue(board.canCastle(Team.TEAM1, r1));
+		
+		// Put king in check and test that castle is not allowed
+		board.setPiece(4, 5, q20);
+		assertFalse(board.canCastle(Team.TEAM1, r0));
+		assertFalse(board.canCastle(Team.TEAM1, r1));
+		board.removePiece(4, 5);
+		
+		// Have the king need to move through check and test that the castle is not allowed
+		board.setPiece(3, 4, r20);
+		assertFalse(board.canCastle(Team.TEAM1, r0));
+		assertTrue(board.canCastle(Team.TEAM1, r1));
+		board.removePiece(3, 4);
+		board.setPiece(5, 4, r20);
+		assertTrue(board.canCastle(Team.TEAM1, r0));
+		assertFalse(board.canCastle(Team.TEAM1, r1));
+		board.removePiece(5, 4);
+		
+		// Put a piece between the king and rook and test that the castle is not allowed
+		board.setPiece(2, 0, p20);
+		assertFalse(board.canCastle(Team.TEAM1, r0));
+		assertTrue(board.canCastle(Team.TEAM1, r1));
+		board.removePiece(2, 0);
+		board.setPiece(6, 0, p20);
+		assertTrue(board.canCastle(Team.TEAM1, r0));
+		assertFalse(board.canCastle(Team.TEAM1, r1));
+		board.removePiece(6, 0);
+		
+		// Move the king and rook and test that the castle is not allowed
+		assertTrue(board.canCastle(Team.TEAM1, r0));
+		board.removePiece(4, 0);
+		k0.moved();
+		board.setPiece(4, 0, k0);
+		assertFalse(board.canCastle(Team.TEAM1, r0));
+		board.removePiece(4, 0);
+		k0 = new King(0, Team.TEAM1);
+		board.setPiece(4, 0, k0);
+		board.removePiece(0, 0);
+		r0.moved();
+		board.setPiece(0, 0, r0);
+		assertFalse(board.canCastle(Team.TEAM1, r0));
+	}
+	
+	@Test
+	public void testPromote() throws Exception {
+		board = new Board();
+		board.createBoard();
+		
+		Pawn p0 = new Pawn(0, Team.TEAM1);
+		Pawn p1 = new Pawn(1, Team.TEAM1);
+		Pawn p2 = new Pawn(2, Team.TEAM1);
+		Knight k0 = new Knight(0, Team.TEAM1);
+		
+		board.setPiece(5, 7, p0);
+		board.setPiece(4, 6, p1);
+		board.setPiece(3, 0, p2);
+		board.setPiece(1, 7, k0);
+		board.promotePiece(board.getSpace(5, 7), new Queen(1, Team.TEAM1));
+		assertTrue(board.getSpace(5, 7).getPiece() instanceof Queen);
+		board.promotePiece(board.getSpace(4, 6), new Queen(2, Team.TEAM1));
+		assertTrue(board.getSpace(4, 6).getPiece() instanceof Pawn);
+		board.promotePiece(board.getSpace(1, 7), new Queen(2, Team.TEAM1));
+		assertTrue(board.getSpace(1, 7).getPiece() instanceof Knight);
+		board.promotePiece(board.getSpace(0, 0), new Queen(2, Team.TEAM1));
+		assertFalse(board.getSpace(0, 0).hasPiece());
+		board.promotePiece(board.getSpace(3, 0), new Queen(2, Team.TEAM2));
+		assertTrue(board.getSpace(3, 0).getPiece() instanceof Pawn);
+	}
 
 }
