@@ -14,6 +14,7 @@ public class Game {
 	private Vector<Piece> team2CapturedPieces = new Vector<Piece>();
 	private Board board;
 	private Team turn;
+	private Team yourTeam;
 
 	// Constructor 
 	
@@ -62,6 +63,14 @@ public class Game {
 			turn = Team.TEAM1;
 	}
 
+	public Team getYourTeam() {
+		return yourTeam;
+	}
+
+	public void setYourTeam(Team yourTeam) {
+		this.yourTeam = yourTeam;
+	}
+
 	/** Setup the game in its initial state 
 	 * @throws Exception **/
 	public void startGame() throws Exception {
@@ -77,9 +86,7 @@ public class Game {
 	
 	// TODO: plan-- The clickable graphics will give coordinates of start and end spaces
 	// TODO: Make sure move doesn't put you in check
-	public boolean makeMove(int startX, int startY, int endX, int endY) throws Exception {
-		Space start = board.getSpace(startX, startY);
-		Space end = board.getSpace(endX, endY);
+	public boolean makeMove(Space start, Space end) throws Exception {
 		// If the start space does not have a piece then no move can be made
 		if(!start.hasPiece()) {
 			throw new Exception("Start space does not have a piece to move");
@@ -118,6 +125,7 @@ public class Game {
 			start.removePiece();
 			end.placePiece(piece);
 			
+			changeTurn();
 			return true;
 		}
 		
