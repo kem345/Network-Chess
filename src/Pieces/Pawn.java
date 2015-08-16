@@ -39,12 +39,12 @@ public class Pawn extends Piece{
 			return true;
 		
 		// Check if attack move team 1 
-		if(end.hasPiece() && Math.abs(start.getxCoordinate() - end.getyCoordinate()) == 1 
+		if(end.hasPiece() && Math.abs(start.getxCoordinate() - end.getxCoordinate()) == 1 
 				&& team.equals(Team.TEAM1) && (start.getyCoordinate() + 1) == end.getyCoordinate())
 			return true;
 		
 		// Check if attack move team2
-		if(end.hasPiece() &&Math.abs(start.getxCoordinate() - end.getyCoordinate()) == 1 
+		if(end.hasPiece() && Math.abs(start.getxCoordinate() - end.getxCoordinate()) == 1 
 				&& team.equals(Team.TEAM2) && (start.getyCoordinate() - 1) == end.getyCoordinate())
 			return true;		
 		
