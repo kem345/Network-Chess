@@ -1,20 +1,19 @@
+
+
 package Networking;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashSet;
 
 
-public class ChessServer {
 
-	private static final int PORT = 8888;
-	
-	
+public class Server {
+
+	private static final int PORT = 8889;
 	
 	
 	public static void main(String[] args) throws Exception{
@@ -29,7 +28,6 @@ public class ChessServer {
 				TEAM2.setOpponent(TEAM1);
 				TEAM1.output.println("START");
 				TEAM2.output.println("START");
-				game.currentPlayer = TEAM1;
 				TEAM1.start();
 				TEAM2.start();
 			}
@@ -41,7 +39,6 @@ public class ChessServer {
 
 
 class Game{
-	Player currentPlayer;
 	
 	class Player extends Thread{
 		String mark;
@@ -69,29 +66,18 @@ class Game{
 		}
 		
 		
-		public synchronized boolean isTurnToMove(Player player,String move)
+		public synchronized void isTurnToMove(Player player,String move)
 		{
-			if(this == currentPlayer)
-			{
-				currentPlayer = currentPlayer.opponent; //Switch current player.
-				currentPlayer.output.println(move);
-				return true;
-			}		
-			return false;
+			player.opponent.output.println(move);
 		}
 		
 		public void run(){
 			try {			
 			
 				while(true){
-					if(this == currentPlayer)
-					{
 						String command = input.readLine();
-							if(isTurnToMove(this,command)){
-								
-							}
-						}
-					}					
+						isTurnToMove(this,command);
+						}				
 			} catch (Exception e) {
 			}
 		}
