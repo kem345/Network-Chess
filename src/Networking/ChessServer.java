@@ -11,7 +11,7 @@ import java.net.Socket;
 
 
 
-public class Server {
+public class ChessServer{
 
 	private static final int PORT = 8889;
 	

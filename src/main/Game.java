@@ -60,6 +60,12 @@ public class Game {
 		}
 		
 	}
+	
+	public void sendMove(String move)
+	{
+		out.println("MOVE"+move);
+	}
+	
 	public Board getBoard() {
 		return board;
 	}
