@@ -33,6 +33,10 @@ public abstract class Piece {
 		moveCount++;
 	}
 	
+	public void undoMove() {
+		moveCount = moveCount - 1;
+	}
+	
 	public Team getTeam() {
 		return team;
 	}
