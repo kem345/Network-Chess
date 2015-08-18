@@ -1,7 +1,6 @@
 package main;
 
 import java.io.BufferedReader;
-import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -18,29 +17,30 @@ public class Game {
 	
 	public BufferedReader in;
 	public PrintWriter out;
-	private static int PORT = 8989;
+	private static int PORT = 8889;
 	public static String SERVERADDRESS = "localhost";
-	
-
 	
 	private Vector<Piece> team1CapturedPieces = new Vector<Piece>();
 	private Vector<Piece> team2CapturedPieces = new Vector<Piece>();
 	private Board board;
 	private Team turn;
 	private Team yourTeam;
+	private Socket socket;
 
 	// Constructor 
 	
-	public Game() {
+	public Game() throws IOException {
 		board = new Board();
-	}
-	
-	
-	public void run() throws Exception{
-		Socket socket = new Socket(SERVERADDRESS,PORT);
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		out = new PrintWriter(socket.getOutputStream(),true);
-		
+		socket = new Socket(SERVERADDRESS,PORT);
+	}
+	
+	/** Establishes connection with the server. Gets a message from the server telling
+	 * whether you are team1 or team2 and when both teams have started 
+	 * @throws Exception
+	 */
+	public void run() throws Exception{
 		while(true){
 			String message = in.readLine();
 			if(message.startsWith("TEAM")){
@@ -49,16 +49,19 @@ public class Game {
 				else
 					yourTeam = Team.TEAM2;
 			}else if(message.startsWith("START")){
-				while(true){
-					if(message.startsWith("MOVE")){				
-						updateOpponentsMove(message.substring(4));			
-					}else if(message.startsWith("END")){
-						return;
-					}
-				}
+				return;
 			}
 		}
 		
+	}
+	
+	/** Listens for an opponents move and then returns the servers message for the move **/
+	public String listen() throws IOException {
+		while(true) {
+			String message = in.readLine();
+			if(message.startsWith("MOVE"))
+				return message;
+		}
 	}
 	
 	public void sendMove(String move)
@@ -191,7 +194,7 @@ public class Game {
 			piece.moved();
 			board.setPiece(end.getxCoordinate(), end.getyCoordinate(), piece);
 			
-			String moveStr = "Move," + start.getxCoordinate() + start.getyCoordinate() + end.getxCoordinate() + end.getyCoordinate();
+			String moveStr = "MOVE," + start.getxCoordinate() + start.getyCoordinate() + end.getxCoordinate() + end.getyCoordinate();
 			sendMove(moveStr);
 			changeTurn();
 		}
@@ -257,6 +260,30 @@ public class Game {
 		
 		board.removePiece(startx, starty);
 		board.setPiece(endx, endy, p);
+	}
+	
+	/** Undoes a move by putting the piece on the new space back on the original space **/
+	public void undoMove(Space original, Space newSpace, Piece capturedPiece) {
+		// The new space has to now have a piece in order to undo
+		if(!newSpace.hasPiece())
+			return;
+		
+		// Get the piece that moved and return its move count to what it was before the move
+		Piece piece = newSpace.getPiece();
+		piece.undoMove();
+		
+		// Remove from the new and place back on the original
+		newSpace.removePiece();
+		original.placePiece(piece);
+		
+		// If a piece was captured then put it back
+		if(capturedPiece != null) {
+			newSpace.placePiece(capturedPiece);
+			if(capturedPiece.getTeam().equals(Team.TEAM1))
+				this.team1CapturedPieces.removeElement(capturedPiece);
+			else
+				this.team2CapturedPieces.removeElement(capturedPiece);
+		}
 	}
 
 }
