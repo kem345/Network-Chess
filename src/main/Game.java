@@ -63,7 +63,7 @@ public class Game {
 	
 	public void sendMove(String move)
 	{
-		out.println("MOVE"+move);
+		out.println("MOVE,"+move);
 	}
 	
 	public Board getBoard() {
@@ -77,11 +77,8 @@ public class Game {
 	/** Capture the specified team1 piece 
 	 * @throws Exception **/
 	public void captureTeam1Piece(Piece piece) throws Exception {
-		if(piece.getTeam().equals(Team.TEAM1)) {
+		if(piece.getTeam().equals(Team.TEAM1))
 			this.team1CapturedPieces.addElement(piece);
-		} else {
-			throw new Exception("A team 1 piece must be provided to this method");
-		}
 	}
 
 	public Vector<Piece> getTeam2CapturedPieces() {
@@ -89,11 +86,8 @@ public class Game {
 	}
 
 	public void captureTeam2Piece(Piece piece) throws Exception {
-		if(piece.getTeam().equals(Team.TEAM2)) {
+		if(piece.getTeam().equals(Team.TEAM2)) 
 			this.team2CapturedPieces.addElement(piece);
-		} else {
-			throw new Exception("A team 2 piece must be provided to this method");
-		}
 	}
 
 	public Team getTurn() {
@@ -142,24 +136,21 @@ public class Game {
 		// Check that another piece from the same team is not already on the space
 		if(!(piece instanceof Knight) && piece.checkMove(start, end) && 
 				board.clearBetween(start, end)) {
-			if((!end.hasPiece()) || (end.hasPiece() && 
-					(!end.getPiece().getTeam().equals(piece.getTeam()))))
+			if((!end.hasPiece()) || (end.hasPiece() && (!end.getPiece().getTeam().equals(piece.getTeam()))))
 				return true;			
 		} else if(piece instanceof Knight && piece.checkMove(start, end)) {
-			if((!end.hasPiece()) || (end.hasPiece() && 
-					(!end.getPiece().getTeam().equals(piece.getTeam()))))
+			if((!end.hasPiece()) || (end.hasPiece() && (!end.getPiece().getTeam().equals(piece.getTeam()))))
 				return true;
 		}
 		
 		return false;
 	}
 	
-	// TODO: plan-- The clickable graphics will give coordinates of start and end spaces
-	// TODO: Make sure move doesn't put you in check
+	/** Move the piece on the start space to the end space as long as the move is valid **/
 	public void makeMove(Space start, Space end) throws Exception {
 		// If the start space does not have a piece then no move can be made
 		if(!start.hasPiece()) {
-			throw new Exception("Start space does not have a piece to move");
+			return;
 		}
 		
 		boolean approveMove = isValidMove(start, end);
@@ -200,8 +191,9 @@ public class Game {
 			piece.moved();
 			board.setPiece(end.getxCoordinate(), end.getyCoordinate(), piece);
 			
+			String moveStr = "Move," + start.getxCoordinate() + start.getyCoordinate() + end.getxCoordinate() + end.getyCoordinate();
+			sendMove(moveStr);
 			changeTurn();
-			
 		}
 	}
 	
@@ -249,14 +241,16 @@ public class Game {
 	/** Update the board based on the opponent's move that has been received from the server 
 	 * @throws Exception **/
 	public void updateOpponentsMove(String move) throws Exception {
-		if(move.length() != 4){
+		String[] coords = move.split(",");
+		if(coords.length != 5){
 			throw new Exception("Invalid message recieved from server");
 		}
-		
-		int startx = Character.getNumericValue(move.charAt(0));
-		int starty = Character.getNumericValue(move.charAt(1));
-		int endx = Character.getNumericValue(move.charAt(2));
-		int endy = Character.getNumericValue(move.charAt(3));
+		// The string should be of the form:
+		// Move,startx,starty,endx,endy
+		int startx = Character.getNumericValue(coords[1].charAt(0));
+		int starty = Character.getNumericValue(coords[2].charAt(0));
+		int endx = Character.getNumericValue(coords[3].charAt(0));
+		int endy = Character.getNumericValue(coords[4].charAt(0));
 		
 		Space start = board.getSpace(startx, starty);
 		Piece p = start.getPiece();
