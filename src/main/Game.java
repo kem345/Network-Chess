@@ -29,11 +29,13 @@ public class Game {
 
 	// Constructor 
 	
-	public Game() throws IOException {
+	public Game() {
 		board = new Board();
+		try {
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		out = new PrintWriter(socket.getOutputStream(),true);
 		socket = new Socket(SERVERADDRESS,PORT);
+		} catch (Exception e) { }
 	}
 	
 	/** Establishes connection with the server. Gets a message from the server telling
@@ -175,7 +177,7 @@ public class Game {
 			
 			return;
 		}
-		
+				
 		// If the piece is allowed to move to the new space then allow it
 		if(approveMove) {
 			// If there is a piece in the new spot then capture it
@@ -194,8 +196,6 @@ public class Game {
 			piece.moved();
 			board.setPiece(end.getxCoordinate(), end.getyCoordinate(), piece);
 			
-			String moveStr = "MOVE," + start.getxCoordinate() + start.getyCoordinate() + end.getxCoordinate() + end.getyCoordinate();
-			sendMove(moveStr);
 			changeTurn();
 		}
 	}
