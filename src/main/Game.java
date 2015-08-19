@@ -32,9 +32,9 @@ public class Game {
 	public Game() {
 		board = new Board();
 		try {
+		socket = new Socket(SERVERADDRESS,PORT);
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		out = new PrintWriter(socket.getOutputStream(),true);
-		socket = new Socket(SERVERADDRESS,PORT);
 		} catch (Exception e) { }
 	}
 	
