@@ -17,16 +17,11 @@ public class SpaceTest {
 	}
 
 	@Test
-	public void testSetValidCoordinates() {
+	public void testSetValidCoordinates() throws Exception {
 		Space space = new Space(0, 0);
-		try {
-			space.setxCoordinate(5);
-			space.setyCoordinate(3);
-			assertTrue(space.getxCoordinate() == 5 && space.getyCoordinate() == 3);
-		} catch (Exception e) {
-			fail("Exception");
-		}
-		
+		space.setxCoordinate(5);
+		space.setyCoordinate(3);
+		assertTrue(space.getxCoordinate() == 5 && space.getyCoordinate() == 3);
 	}
 
 	@Test(expected=Exception.class)

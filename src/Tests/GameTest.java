@@ -2,8 +2,6 @@ package Tests;
 
 import static org.junit.Assert.*;
 
-import java.io.IOException;
-
 import org.junit.Test;
 
 import Pieces.King;
@@ -14,9 +12,10 @@ import main.Game.Team;
 
 public class GameTest {
 
+	Game game = new Game();
+	
 	@Test
 	public void testCaptureTeam1Piece() throws Exception {
-		Game game = new Game();
 		Pawn pawn = new Pawn(1, Team.TEAM1);
 		assertFalse(game.getTeam1CapturedPieces().contains(pawn));
 		game.captureTeam1Piece(pawn);
@@ -25,7 +24,6 @@ public class GameTest {
 
 	@Test
 	public void testCaptureTeam2Piece() throws Exception {
-		Game game = new Game();
 		Pawn pawn = new Pawn(1, Team.TEAM2);
 		assertFalse(game.getTeam2CapturedPieces().contains(pawn));
 		game.captureTeam2Piece(pawn);
@@ -34,7 +32,6 @@ public class GameTest {
 
 	@Test
 	public void testStartGame() throws Exception {
-		Game game = new Game();
 		game.startGame();
 		assertTrue(game.getBoard().getSpaces().size() == 64);
 		assertTrue(game.getTeam1CapturedPieces().size() == 0);
@@ -53,7 +50,7 @@ public class GameTest {
 	}
 	
 	@Test
-	public void testYourTeam() throws IOException {
+	public void testYourTeam() {
 		Game g = new Game();
 		g.setYourTeam(Team.TEAM1);
 		assertTrue(g.getYourTeam().equals(Team.TEAM1));
@@ -122,18 +119,39 @@ public class GameTest {
 	}
 	
 	@Test
+	public void testEnPassantMove() throws Exception {
+		Game g = new Game();
+		g.startGame();
+		
+		// Test team2 make en passant move
+		g.makeMove(g.getBoard().getSpace(1, 1), g.getBoard().getSpace(1, 3));
+		g.makeMove(g.getBoard().getSpace(2, 6), g.getBoard().getSpace(2, 4));
+		g.makeMove(g.getBoard().getSpace(2, 4), g.getBoard().getSpace(2, 3));
+		g.makeMove(g.getBoard().getSpace(2, 3), g.getBoard().getSpace(1, 2));
+		assertFalse(g.getBoard().getSpace(1, 3).hasPiece());
+		assertTrue(g.getBoard().getSpace(1, 2).hasPiece());
+		
+		// Test team1 make en passant move
+		g.makeMove(g.getBoard().getSpace(4, 1), g.getBoard().getSpace(4, 3));
+		g.makeMove(g.getBoard().getSpace(4, 3), g.getBoard().getSpace(4, 4));
+		g.makeMove(g.getBoard().getSpace(3, 6), g.getBoard().getSpace(3, 4));
+		g.makeMove(g.getBoard().getSpace(4, 4), g.getBoard().getSpace(3, 5));
+		assertFalse(g.getBoard().getSpace(3, 4).hasPiece());
+		assertTrue(g.getBoard().getSpace(3, 5).hasPiece());
+	}
+	
+	@Test
 	public void testOpponentsMove() throws Exception {
 		Game g = new Game();
 		g.startGame();
 		assertTrue(g.getBoard().getSpace(0, 1).hasPiece());
 		assertFalse(g.getBoard().getSpace(0, 2).hasPiece());
-		g.updateOpponentsMove("0,1,0,2");
+		g.updateOpponentsMove("MOVE,0,1,0,2");
 		assertTrue(g.getBoard().getSpace(0, 2).hasPiece());
 	}
 	
 	@Test(expected=Exception.class)
 	public void testInvalidUpdateString() throws Exception {
-		Game game = new Game();
 		game.updateOpponentsMove("0,1");
 	}
 }

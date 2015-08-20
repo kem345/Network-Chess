@@ -33,16 +33,12 @@ public class BoardTest {
 	}
 
 	@Test
-	public void testSetPiece() {
-		try {
-			board = new Board();
-			board.createBoard();
-			assertFalse(board.getSpaces().get(0).hasPiece());
-			board.setPiece(0, 0, new Pawn(0, Team.TEAM1));
-			assertTrue(board.getSpaces().get(0).hasPiece());
-		} catch(Exception e) {
-			fail("Exception throw in test");
-		}
+	public void testSetPiece() throws Exception {
+		Board board = new Board();
+		board.createBoard();
+		assertFalse(board.getSpaces().get(0).hasPiece());
+		board.setPiece(0, 0, new Pawn(0, Team.TEAM1));
+		assertTrue(board.getSpaces().get(0).hasPiece());
 	}
 	
 	@Test(expected=Exception.class)
@@ -268,6 +264,65 @@ public class BoardTest {
 		r0.moved();
 		board.setPiece(0, 0, r0);
 		assertFalse(board.canCastle(Team.TEAM1, r0));
+	}
+	
+	@Test
+	public void testEnPassant() throws Exception {
+		board = new Board();
+		board.createBoard();
+		
+		Pawn p01 = new Pawn(0, Team.TEAM1);
+		Pawn p11 = new Pawn(1, Team.TEAM1);
+		Pawn p02 = new Pawn(0, Team.TEAM2);
+		Pawn p12 = new Pawn(1, Team.TEAM2);
+		Bishop b1 = new Bishop(0, Team.TEAM1);
+		Bishop b2 = new Bishop(0, Team.TEAM2);
+		
+		p01.moved(); p01.moved(); p11.moved(); 
+		board.setPiece(1, 3, p01);
+		board.setPiece(3, 3, p11);
+		board.setPiece(2, 3, p02);
+		board.setPiece(4, 3, p12);
+		
+		// Test team2 capturing team1
+		assertFalse(board.canEnpassant(board.getSpace(2, 3), board.getSpace(1, 2)));
+		assertTrue(board.canEnpassant(board.getSpace(4, 3), board.getSpace(3, 2)));
+		
+		// Reset board
+		board = new Board();
+		board.createBoard();
+		board.setPiece(1, 4, p02);
+		board.setPiece(3, 4, p12);
+		board.setPiece(2, 4, p01);
+		board.setPiece(4, 4, p11);
+		p02.moved(); p02.moved(); p12.moved();
+		
+		// Test team2 capturing team1
+		assertFalse(board.canEnpassant(board.getSpace(2, 4), board.getSpace(1, 5)));
+		assertTrue(board.canEnpassant(board.getSpace(4, 4), board.getSpace(3, 5)));
+		
+		board = new Board();
+		board.createBoard();
+		board.setPiece(2, 3, b1);
+		board.setPiece(3, 3, p02);
+		board.setPiece(5, 4, b2);
+		board.setPiece(6, 4, p01);
+		// bishop can't be captured by en passant
+		assertFalse(board.canEnpassant(board.getSpace(3, 3), board.getSpace(2, 2)));
+		assertFalse(board.canEnpassant(board.getSpace(6, 4), board.getSpace(5, 5)));
+		
+		// Bishop can't do en passant move
+		board.setPiece(3, 3, b1);
+		board.setPiece(2, 3, p02);
+		assertFalse(board.canEnpassant(board.getSpace(3, 3), board.getSpace(2, 2)));
+		
+		board.setPiece(2, 2, p11);
+		board.setPiece(3, 2, p12);
+		board.setPiece(4, 2, p01);
+		board.setPiece(5, 2, p02);
+		// Cant use enpassant at wrong space
+		assertFalse(board.canEnpassant(board.getSpace(3, 2), board.getSpace(2, 1)));
+		assertFalse(board.canEnpassant(board.getSpace(4, 2), board.getSpace(5, 1)));
 	}
 	
 	@Test
