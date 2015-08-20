@@ -262,7 +262,7 @@ public class Board {
 	
 	/** Return true if team is in checkmate 
 	 * @throws Exception **/
-	public boolean teamInCheckmate(Team team) throws Exception {
+	public boolean kingCheckmateCheck(Team team) throws Exception {
 		// A team can't be in checkmate if it is not in check
 		if(!teamInCheck(team))
 			return false;
@@ -274,11 +274,13 @@ public class Board {
 		Vector<Space> moves = getKingMoves(kingSpace);
 		for(Space sp : moves) {
 			// If there is a space for the king to move then it is not in checkmate
-			if((!spaceInCheck(sp, team)) && king.checkMove(kingSpace, sp)) {
+			if((!(sp.hasPiece() && sp.getPiece().getTeam().equals(king.getTeam()))) && 
+					(!spaceInCheck(sp, team)) && king.checkMove(kingSpace, sp)) {
 				return false;
 			}
 		}
 		
+		//TODO: Check if move can take you out of check
 		return true;
 	}
 	
@@ -333,36 +335,39 @@ public class Board {
 	}
 	
 	/** Check if the given team can execute an En Passant move to the given space **/
-	// TODO: can't tell if there has been a move since the two space pawn move	
-	public boolean canEnpassant(Team team, Space space) {
-		// the space has to be 1 row away from where a pawn would start
-		// there has to be a pawn from the other team that had just moved 2 spaces on the space in front of it
-		if(space.getyCoordinate() == 2 && getSpace(space.getxCoordinate(), 3).hasPiece()) {
-			Piece piece = getSpace(space.getxCoordinate(), 3).getPiece();
-			if(piece instanceof Pawn && !piece.getTeam().equals(team) && piece.getMoveCount() == 1) {
-				return true;
-			}
-		}
+	public boolean canEnpassant(Space space, Space end) {
+		Piece enP = space.getPiece();
 		
-		// the space has to be 1 row away from where a pawn would start
-		// there has to be a pawn from the other team that had just moved 2 spaces on the space in front of it
-		if(space.getyCoordinate() == 5 && getSpace(space.getxCoordinate(), 4).hasPiece()) {
-			Piece piece = getSpace(space.getxCoordinate(), 4).getPiece();
-			if(piece instanceof Pawn && !piece.getTeam().equals(team) && piece.getMoveCount() == 1) {
-				return true;
+		// Only pawns can perform en passant moves
+		if(enP instanceof Pawn) {
+			// if the piece moving is team 2 then it needs to be moving to row 2
+			// and capturing a pawn in row 3
+			if(enP.getTeam().equals(Team.TEAM2) && end.getyCoordinate() == 2 && getSpace(space.getxCoordinate(), 3).hasPiece()) {
+				Piece piece = getSpace(end.getxCoordinate(), 3).getPiece();
+				if(piece instanceof Pawn && !piece.getTeam().equals(enP.getTeam()) && piece.getMoveCount() == 1) {
+					return true;
+				}
+			} else if(enP.getTeam().equals(Team.TEAM1) && end.getyCoordinate() == 5 && getSpace(space.getxCoordinate(), 4).hasPiece()) {
+				// if the piece moving is team 1 then it needs to be moving to row 5
+				// and capturing a pawn in row 4
+				Piece piece = getSpace(end.getxCoordinate(), 4).getPiece();
+				if(piece instanceof Pawn && !piece.getTeam().equals(enP.getTeam()) && piece.getMoveCount() == 1) {
+					return true;
+				}
 			}
 		}
 		
 		return false;
 	}
 	
+	/** Promote the pawn on the given space to the newPiece **/
 	public void promotePiece(Space space, Piece newPiece) {
 		// A pawn can only be promoted if it is in the last row
 		if(space.getyCoordinate() != 0 && space.getyCoordinate() != 7) {
 			return;
 		}
 		
-		// Only pawns can be promoted
+		// Only pawns can be promoted and they must be promoted to a Piece for the same team
 		if(!space.hasPiece() || !(space.getPiece() instanceof Pawn) ||
 				!space.getPiece().getTeam().equals(newPiece.getTeam()))
 			return;

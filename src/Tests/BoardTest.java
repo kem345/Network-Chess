@@ -198,11 +198,11 @@ public class BoardTest {
 		
 		board.setPiece(3, 0, new King(0, Team.TEAM1));
 		board.setPiece(0, 0, new Pawn(0, Team.TEAM2));
-		assertFalse(board.teamInCheckmate(Team.TEAM1));
+		assertFalse(board.kingCheckmateCheck(Team.TEAM1));
 		board.setPiece(6, 0, new Queen(0, Team.TEAM2));
-		assertFalse(board.teamInCheckmate(Team.TEAM1));
+		assertFalse(board.kingCheckmateCheck(Team.TEAM1));
 		board.setPiece(2, 1, new Rook(0, Team.TEAM2));
-		assertTrue(board.teamInCheckmate(Team.TEAM1));
+		assertTrue(board.kingCheckmateCheck(Team.TEAM1));
 	}
 	
 	@Test
