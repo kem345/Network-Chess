@@ -10,27 +10,31 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 
+import javax.swing.JFrame;
+
 
 
 public class ChessServer{
 
 	private static final int PORT = 8889;
+	JFrame frame = new JFrame("Server is Running");
 	
+	public ChessServer(){
+		
+	}
 	
 	public static void main(String[] args) throws Exception{
+		ChessServer cs = new ChessServer();
+		cs.frame.setBounds(100, 100, 500, 160); 
+		cs.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		cs.frame.setVisible(true);
 		ServerSocket listener = new ServerSocket(PORT);
-		System.out.println("Online chess server is running!");
-		URL whatismyip = new URL("http://checkip.amazonaws.com");
-		BufferedReader in = new BufferedReader(new InputStreamReader(
-		                whatismyip.openStream()));
 
-		String ip = in.readLine(); //you get the IP as a String
-		System.out.println("IP is: " + ip);
 		try {
 			while(true){
-				Game game = new Game();
-				Game.Player TEAM1 = game.new Player(listener.accept(), "TEAM1");
-				Game.Player TEAM2 = game.new Player(listener.accept(), "TEAM2");
+				Match game = new Match();
+				Match.Player TEAM1 = game.new Player(listener.accept(), "TEAM1");
+				Match.Player TEAM2 = game.new Player(listener.accept(), "TEAM2");
 				TEAM1.setOpponent(TEAM2);
 				TEAM2.setOpponent(TEAM1);
 				TEAM1.output.println("START");
@@ -45,7 +49,7 @@ public class ChessServer{
 }
 
 
-class Game{
+class Match{
 	
 	class Player extends Thread{
 		String mark;
@@ -73,7 +77,7 @@ class Game{
 		}
 		
 		
-		public synchronized void isTurnToMove(Player player,String move)
+		public synchronized void Move(Player player,String move)
 		{
 			player.opponent.output.println(move);
 		}
@@ -83,7 +87,7 @@ class Game{
 			
 				while(true){
 						String command = input.readLine();
-						isTurnToMove(this,command);
+						Move(this,command);
 						}				
 			} catch (Exception e) {
 			}
