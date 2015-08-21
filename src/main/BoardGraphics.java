@@ -24,6 +24,8 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  Button undo;
 	  Button end;
 	  Button startGame;
+	  static String importedIP;
+
 	  
 	  public void init() {
 		undo = new Button("Undo");
@@ -41,33 +43,21 @@ public class BoardGraphics extends Applet implements ActionListener {
 		//a.setPreferredSize(new Dimension(1,1));
 		//SMCanvas mainCanvas = new SMCanvas();
 		//undo = new Button(mainCanvas, SWT.Push);
-	    this.add(undo);
-	    this.add(end);
-	    this.add(startGame);
+	    //this.add(undo);
+	    //this.add(end);
+	    //this.add(startGame);
 	    this.add(noteLabel);
 	    setLayout(new BorderLayout());
-	    add(new SMCanvas());
+	    add(new SMCanvas(importedIP));
 	    //label = new Label("Drag rectangle around within the area");
 	    //add("South", label);
 	  }
 	  
 	  public void actionPerformed(ActionEvent e) {
-		  if (e.getSource() == undo) {
-			  //System.out.println("Button undo was pressed");
-			  SMCanvas.undo();
-		  }else if (e.getSource() == end){
-			  //System.out.println("Button end turn was pressed");
-			  SMCanvas.endTurn();
-		  }else if (e.getSource() == startGame){
-			  SMCanvas.startGame();
-		  }else{
-			//do nothing	
-		  }
+
 	  }
 
-	 
-
-	public static void main(String s[]) {
+	public void main(String s[]) {
 	    
 		Frame f = new Frame("Network Chess");
 		
@@ -79,53 +69,37 @@ public class BoardGraphics extends Applet implements ActionListener {
 	    });
 	    Applet applet = new BoardGraphics();
 	    f.add("Center", applet);
+	    if(s.length > 0){
+		    importedIP = s[0];
+	    }else{
+		    importedIP = "localhost";
+	    }
 	    applet.init();
-	    applet.setSize(new Dimension(1800, 1400));
+	    applet.setSize(new Dimension(1200, 800));
 	    f.pack();
-	    f.setSize(new Dimension(1800, 1400));
+	    f.setSize(new Dimension(1200, 800));
 	    f.setVisible(true);
 	  }
 
-	public void main(Team team) {
-		Frame f = new Frame("Network Chess");
-		
-	    f.addWindowListener(new WindowAdapter() {
-
-	      public void windowClosing(WindowEvent e) {
-	        System.exit(0);
-	      }
-	    });
-	    Applet applet = new BoardGraphics();
-	    f.add("Center", applet);
-	    applet.init();
-	    SMCanvas.myTeam = team;
-	    applet.setSize(new Dimension(1800, 1400));
-	    f.pack();
-	    f.setSize(new Dimension(1800, 1400));
-	    f.setVisible(true);
-	}
-
-	static class SMCanvas extends Canvas implements MouseListener, MouseMotionListener {
+	class SMCanvas extends Canvas implements MouseListener, MouseMotionListener {
+	  //Variables used throughout the Canvas class
 	  //game logic pieces
-	  static Game game1 = new Game();
-
+	  Game game1 = new Game();
 	  Board gameBoard = new Board();
 	  //Variable to determine team of picked piece
-	  static String whoseTeam = "";
-
+	  String whoseTeam = "";
 	  //variable to track team of player
-	  static Team myTeam = null;
+	  Team myTeam = null;
 	  
 	  //Keep track of number of captured pieces for later use
-	  static int capturedEnemies = 0;
-	  static int lastEnemyCaptured = 0;
+	  int capturedEnemies = 0;
+	  int lastEnemyCaptured = 0;
 	  
 	  //track if an undo was done
 	  //static boolean undoMade = false;
 	  
-	  
 	  //filler to "erase" captured pieces when you undo
-	  static Rectangle filler = null;
+	  Rectangle filler = null;
 	  
 	  // Holds the coordinates of the user's last mousePressed event.
 	  int last_x, last_y;
@@ -134,18 +108,18 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  //are we moving a piece
 	  boolean pieceSelected = false;
 	  //has a move been made this turn?
-	  static boolean moveMade = false;
-	  static //is it my turn still
+	  boolean moveMade = false;
+	  //is it my turn still
 	  boolean myTurn = false;
 	  //piece we select
-	  static int pieceHeld = 0;
-	  static int startSquare = 0;
-	  static int newSquare = 0;
+	  int pieceHeld = 0;
+	  int startSquare = 0;
+	  int newSquare = 0;
 	  //board graphics
-	  static ArrayList<Rectangle> BoardGrid = new ArrayList<Rectangle>();
+	  ArrayList<Rectangle> BoardGrid = new ArrayList<Rectangle>();
 	  //piece graphics
-	  static ArrayList<Rectangle> whiteRectangles = new ArrayList<Rectangle>();
-	  static ArrayList<Rectangle> blackRectangles = new ArrayList<Rectangle>();
+	  ArrayList<Rectangle> whiteRectangles = new ArrayList<Rectangle>();
+	  ArrayList<Rectangle> blackRectangles = new ArrayList<Rectangle>();
 	  ArrayList<Rectangle> possibleMoves = new ArrayList<Rectangle>();
 	  //piece logics
 	  Vector<Piece> whitePieces = new Vector<Piece>();
@@ -166,16 +140,32 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  Image bBishopImg = null;
 	  Image bKingImg = null;
 	  Image bQueenImg = null;
+	  
+	  Image undoButtonImg = null;
+	  Image endTurnButtonImg = null;
+	  Image yourTurnImg = null;
+	  Image oppTurnImg = null;
+	  
+	  Rectangle undoButton = new Rectangle(450, 50, 60, 20);
+	  Rectangle endTurnButton = new Rectangle(450, 80, 60, 20);
+	  Rectangle yourTurn = new Rectangle(450,110,80,30);
+	  Rectangle oppTurn = new Rectangle(450,110,80,30);
+	  
 	  //locations where you select and move piece
-	  static Space startSpace;
-	  static Space newSpace;
-	  static Piece capturedPiece =  null;
+	  Space startSpace;
+	  Space newSpace;
+	  Piece capturedPiece =  null;
 	 // Piece movingPiece;
-
-	  static boolean gameStarted = false;
+	 
+	  boolean gameStarted = false;
 	  String latestOpponentMove = "";
 	  
+	  String ip = "";
+	  
 	  public SMCanvas() {
+		  
+	  }
+	  public SMCanvas(String ipAddress) {
 		//start logic stuff
 		try {
 			game1.startGame();
@@ -198,12 +188,19 @@ public class BoardGraphics extends Applet implements ActionListener {
 		bBishopImg = new ImageIcon("../images/blackBishop.png").getImage();
 		bKingImg = new ImageIcon("../images/blackKing.png").getImage();
 		bQueenImg = new ImageIcon("../images/blackQueen.png").getImage();
+		undoButtonImg = new ImageIcon("../images/undoButton.png").getImage();
+		endTurnButtonImg = new ImageIcon("../images/endTurnButton.png").getImage();
+
+		yourTurnImg = new ImageIcon("../images/yourTurn.png").getImage();
+		oppTurnImg = new ImageIcon("../images/oppTurn.png").getImage();
 		
 		//background
 	    setBackground(Color.white);
 	    //listeners
 	    addMouseMotionListener(this);
 	    addMouseListener(this);
+	    ip = ipAddress;
+	    startGame();
 	  }
 
 	  // Handles the event of the user pressing down the mouse button.
@@ -219,231 +216,285 @@ public class BoardGraphics extends Applet implements ActionListener {
 
 	  // Handles the event of a user releasing the mouse button.
 	  public void mouseReleased(MouseEvent e) {
-
+		  System.out.println(ip);
 	    // Checks whether or not the cursor is inside of the rectangle when the
 	    // user releases the mouse button.
-
 		possibleMoves.clear();
 		//if(isTurn)
+		
+		if(undoButton.contains(e.getX(), e.getY())){
+			undo();
+		}else if(endTurnButton.contains(e.getX(), e.getY())){
+			endTurn();
+		}
+		
 		if(gameStarted){
 			if(myTurn){
 				if(pieceSelected){
-					//whiteRectangles.get(pieceHeld).setLocation(e.getX(), e.getY());
-					//repaint place piece was
-					//paint new place
-					//movingPiece = startSpace.getPiece();
-					
+					System.out.println("MAking my own move");
 					pieceSelected = false;
+					newSquare = -1;
 					for (int j=0; j<BoardGrid.size(); j++){
 						if(BoardGrid.get(j).contains(e.getX(), e.getY())){
-							newSquare = j;		
-							//System.out.println(j);
+							newSquare = j;
 						}
 					}
-					
-					newSpace = gameBoard.getSpace(newSquare % 8, newSquare / 8);
-					//Moving Pieces logic
-					try {
-						if(game1.isValidMove(startSpace, newSpace)){
-							if(startSpace.getPiece() instanceof King &&
-									newSpace.hasPiece() && 
-									newSpace.getPiece() instanceof Rook &&
-									game1.getBoard().canCastle(startSpace.getPiece().getTeam(), (Rook)newSpace.getPiece())){
-								int pieceMovingTo = 0;
-								for(int i=0; i<whiteRectangles.size(); i++){
-									if(BoardGrid.get(newSquare).contains(whiteRectangles.get(i))){
-										pieceMovingTo = i;
-									}
-								}
-								for(int i=0; i<blackRectangles.size(); i++){
-									if(BoardGrid.get(newSquare).contains(blackRectangles.get(i))){
-										pieceMovingTo = i;
-									}
-								}
-		
-								System.out.println(startSquare + "qwe q" + newSquare);
-								if(startSquare < newSquare){
-									if(whoseTeam == "white"){
-										whiteRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(startSquare + 2).getX() + 5, (int)BoardGrid.get(startSquare + 2).getY() + 5);
-										whiteRectangles.get(pieceMovingTo).setLocation((int)BoardGrid.get(startSquare + 1).getX() + 5, (int)BoardGrid.get(startSquare + 1).getY() + 5);	
-									}else{
-										blackRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(startSquare + 2).getX() + 5, (int)BoardGrid.get(startSquare + 2).getY() + 5);
-										blackRectangles.get(pieceMovingTo).setLocation((int)BoardGrid.get(startSquare + 1).getX() + 5, (int)BoardGrid.get(startSquare + 1).getY() + 5);								
-									}
-								}else{
-									if(whoseTeam == "white"){
-										whiteRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(startSquare - 2).getX() + 5, (int)BoardGrid.get(startSquare - 2).getY() + 5);
-										whiteRectangles.get(pieceMovingTo).setLocation((int)BoardGrid.get(startSquare - 1).getX() + 5, (int)BoardGrid.get(startSquare - 1).getY() + 5);	
-									}else{
-										blackRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(startSquare - 2).getX() + 5, (int)BoardGrid.get(startSquare - 2).getY() + 5);	
-										blackRectangles.get(pieceMovingTo).setLocation((int)BoardGrid.get(startSquare - 1).getX() + 5, (int)BoardGrid.get(startSquare - 1).getY() + 5);							
-									}
-								}
-								//castling
-								game1.makeMove(startSpace, newSpace);
-								
-							//logic for capturing pieces. Made to else if so we don't capture on castle
-							}else if(newSpace.hasPiece()){
-								capturedPiece = newSpace.getPiece();
-								for (int j=0; j<blackRectangles.size(); j++){
-									if(BoardGrid.get(newSquare).contains(blackRectangles.get(j))){
-										//blackRectangles.get(j).setLocation(600 + (capturedEnemies/2) * 50, 50 * (capturedEnemies%2));
-										MoveRectToJail(blackRectangles.get(j));
-										capturedEnemies++;
-										lastEnemyCaptured = j;
-									}
-								}
-								for (int j=0; j<whiteRectangles.size(); j++){
-									if(BoardGrid.get(newSquare).contains(whiteRectangles.get(j))){
-										//whiteRectangles.get(j).setLocation(600 + (capturedEnemies/2) * 50, 50 * (capturedEnemies%2));
-										MoveRectToJail(whiteRectangles.get(j));
-										capturedEnemies++;
-										lastEnemyCaptured = j;
-									}
-								}
-							//}
-							//capturing
-							game1.makeMove(startSpace, newSpace);
-							
-							if(whoseTeam == "white"){
-								moveRectToSquare(whiteRectangles.get(pieceHeld), newSquare);
-								//whiteRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);	
-							}else{
-								moveRectToSquare(blackRectangles.get(pieceHeld), newSquare);
-								//blackRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);							
-							}
-						}else{
-							//vanilla move
-							game1.makeMove(startSpace, newSpace);
-							
-							if(whoseTeam == "white"){
-								moveRectToSquare(whiteRectangles.get(pieceHeld), newSquare);
-								//whiteRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);	
-							}else{
-								moveRectToSquare(blackRectangles.get(pieceHeld), newSquare);
-								//blackRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);							
-							}
-						}
-							int x1 = startSpace.getxCoordinate();
-							int y1 = startSpace.getyCoordinate();
-							int x2 = newSpace.getxCoordinate();
-							int y2 = newSpace.getyCoordinate();
-							game1.sendMove(x1 + "," + y1 + "," + x2 + "," + y2);
-							
-							moveMade = true;
-							myTurn = false;
-							//newSpace.placePiece(movingPiece);
-							//startSpace.removePiece();
-							//System.out.println("CHECKING CHECK");
-							if(game1.getBoard().teamInCheck(Game.Team.TEAM2)){
-								System.out.println("Team 2 is in check");
-							}else if(game1.getBoard().teamInCheck(Game.Team.TEAM1)){
-								System.out.println("Team 1 is in check");	
-							}
-							
-						}
-						
-					} catch (Exception e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-					
-					//whoseTeam = "";
-					repaint();
-				}else if (!moveMade){
-					if(myTeam == Team.TEAM2){
-						for(int i=0; i<whiteRectangles.size(); i++){
-							if(whiteRectangles.get(i).contains(e.getX(), e.getY())){
-								//System.out.println("Got Piece " + i);
-								pieceSelected = true;
-								pieceHeld = i;
-								for (int j=0; j<BoardGrid.size(); j++){
-									if(BoardGrid.get(j).contains(whiteRectangles.get(i))){
-										startSquare = j;
-										//System.out.println(startSquare % 8);
-										//System.out.println(startSquare / 8);
-									}
-								}
-								startSpace = gameBoard.getSpace(startSquare % 8, startSquare / 8);
-								//System.out.println(startSpace.hasPiece());
-								//possible move highlighter
-								possibleMoves.clear();
-								for(int k=0; k<64; k++){
-									newSpace = gameBoard.getSpace(k % 8, k / 8);
-									//Piece movingPiece = startSpace.getPiece();
-									try {
-										if(game1.isValidMove(startSpace, newSpace)){
-											possibleMoves.add(BoardGrid.get(k));
-										}
-									} catch (Exception e1) {
-										// TODO Auto-generated catch block
-										e1.printStackTrace();
-									}
-								}
-								if(possibleMoves.isEmpty()){
-									possibleMoves.add(BoardGrid.get(startSquare));
-								}
-								whoseTeam = "white";
-							}
-						}
+					if(newSquare > -1){
+						makeMove();
+						moveMade = true;
 					}else{
-						for(int i=0; i<blackRectangles.size(); i++){
-							if(blackRectangles.get(i).contains(e.getX(), e.getY())){
-								//System.out.println("Got Piece " + i);
-								pieceSelected = true;
-								pieceHeld = i;
-								for (int j=0; j<BoardGrid.size(); j++){
-									if(BoardGrid.get(j).contains(blackRectangles.get(i))){
-										startSquare = j;
-										//System.out.println(startSquare % 8);
-										//System.out.println(startSquare / 8);
-									}
-								}
-								startSpace = gameBoard.getSpace(startSquare % 8, startSquare / 8);
-								//System.out.println(startSpace.hasPiece());
-								//possible move highlighter
-								possibleMoves.clear();
-								for(int k=0; k<64; k++){
-									newSpace = gameBoard.getSpace(k % 8, k / 8);
-									//Piece movingPiece = startSpace.getPiece();
-									try {
-										if(game1.isValidMove(startSpace, newSpace)){
-											possibleMoves.add(BoardGrid.get(k));
-										}
-									} catch (Exception e1) {
-										// TODO Auto-generated catch block
-										e1.printStackTrace();
-									}
-								}
-								if(possibleMoves.isEmpty()){
-									possibleMoves.add(BoardGrid.get(startSquare));
-								}
-								whoseTeam = "black";
-							}
+						pieceSelected = false;
+					}
+					//System.out.println("MAking move");
+					
+					
+					//myTurn = false;
+				}else if (!moveMade){
+					System.out.println("Selecting my own piece");
+					for (int j=0; j<BoardGrid.size(); j++){
+						if(BoardGrid.get(j).contains(e.getX(), e.getY())){
+							startSquare = j;
 						}
 					}
+					if(myTeam == Team.TEAM2){	
+						selectWhitePiece(startSquare);
+					}else{
+						selectBlackPiece(startSquare);
+					}
+					if(pieceSelected){
+						possibleMoves.clear();
+						for(int k=0; k<64; k++){
+							newSpace = gameBoard.getSpace(k % 8, k / 8);
+							//Piece movingPiece = startSpace.getPiece();
+							try {
+								if(game1.isValidMove(startSpace, newSpace)){
+									possibleMoves.add(BoardGrid.get(k));
+								}
+							} catch (Exception e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}
+						/*if(possibleMoves.isEmpty()){
+							possibleMoves.add(BoardGrid.get(startSquare));
+						}*/
+					}
+				}else{
+					System.out.println("FAILING TO DO ANYTHING ON MY TURN");
 				}
 				repaint();
 
-				}else{
-					//you've made your move so wait for opponent's turn
-					try {
-						latestOpponentMove = game1.listen();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-					System.out.println(latestOpponentMove);
-					replicateOpponentMove(latestOpponentMove);
+			}else{
+				System.out.println("Waiting for opponent");
+				//you've made your move so wait for opponent's turn
+				try {
+					latestOpponentMove = game1.listen();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
+				System.out.println("MAKING OPP's MOVE");
+				replicateOpponentMove(latestOpponentMove);
+				repaint();
+				moveMade = false;
+			}
 			}
 		}
 	  
+	  public void selectWhitePiece(int startSquare){
+		  for(int i=0; i<whiteRectangles.size(); i++){
+				if(BoardGrid.get(startSquare).contains(whiteRectangles.get(i))){
+					//System.out.println("Got Piece " + i);
+					pieceSelected = true;
+					pieceHeld = i;
+					/*for (int j=0; j<BoardGrid.size(); j++){
+						if(BoardGrid.get(j).contains(whiteRectangles.get(i))){
+							startSquare = j;
+							//System.out.println(startSquare % 8);
+							//System.out.println(startSquare / 8);
+						}
+					}*/
+					startSpace = gameBoard.getSpace(startSquare % 8, startSquare / 8);
+					//System.out.println(startSpace.hasPiece());
+					//possible move highlighter
+					/*possibleMoves.clear();
+					for(int k=0; k<64; k++){
+						newSpace = gameBoard.getSpace(k % 8, k / 8);
+						//Piece movingPiece = startSpace.getPiece();
+						try {
+							if(game1.isValidMove(startSpace, newSpace)){
+								possibleMoves.add(BoardGrid.get(k));
+							}
+						} catch (Exception e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}
+					if(possibleMoves.isEmpty()){
+						possibleMoves.add(BoardGrid.get(startSquare));
+					}*/
+					whoseTeam = "white";
+				}
+			}
+		  //System.out.println(startSquare);
+	  }
+	  
+	  public void selectBlackPiece(int startSquare){
+		  for(int i=0; i<blackRectangles.size(); i++){
+			  if(BoardGrid.get(startSquare).contains(blackRectangles.get(i))){
+					//System.out.println("Got Piece " + i);
+					pieceSelected = true;
+					pieceHeld = i;
+					/*for (int j=0; j<BoardGrid.size(); j++){
+						if(BoardGrid.get(j).contains(blackRectangles.get(i))){
+							startSquare = j;
+							//System.out.println(startSquare % 8);
+							//System.out.println(startSquare / 8);
+						}
+					}*/
+					startSpace = gameBoard.getSpace(startSquare % 8, startSquare / 8);
+					//System.out.println(startSpace.hasPiece());
+					//possible move highlighter
+					
+					whoseTeam = "black";
+				}
+			}
+		  //System.out.println(startSquare);
+	  }
+	  
+	  
+	  public void makeMove(){
+
+			newSpace = gameBoard.getSpace(newSquare % 8, newSquare / 8);
+			//Moving Pieces logic
+			try {
+				if(game1.isValidMove(startSpace, newSpace)){
+					if(startSpace.getPiece() instanceof King &&
+							newSpace.hasPiece() && 
+							newSpace.getPiece() instanceof Rook &&
+							game1.getBoard().canCastle(startSpace.getPiece().getTeam(), (Rook)newSpace.getPiece())){
+						int pieceMovingTo = 0;
+						for(int i=0; i<whiteRectangles.size(); i++){
+							if(BoardGrid.get(newSquare).contains(whiteRectangles.get(i))){
+								pieceMovingTo = i;
+							}
+						}
+						for(int i=0; i<blackRectangles.size(); i++){
+							if(BoardGrid.get(newSquare).contains(blackRectangles.get(i))){
+								pieceMovingTo = i;
+							}
+						}
+
+						System.out.println(startSquare + "qwe q" + newSquare);
+						if(startSquare < newSquare){
+							if(whoseTeam == "white"){
+								whiteRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(startSquare + 2).getX() + 5, (int)BoardGrid.get(startSquare + 2).getY() + 5);
+								whiteRectangles.get(pieceMovingTo).setLocation((int)BoardGrid.get(startSquare + 1).getX() + 5, (int)BoardGrid.get(startSquare + 1).getY() + 5);	
+							}else{
+								blackRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(startSquare + 2).getX() + 5, (int)BoardGrid.get(startSquare + 2).getY() + 5);
+								blackRectangles.get(pieceMovingTo).setLocation((int)BoardGrid.get(startSquare + 1).getX() + 5, (int)BoardGrid.get(startSquare + 1).getY() + 5);								
+							}
+						}else{
+							if(whoseTeam == "white"){
+								whiteRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(startSquare - 2).getX() + 5, (int)BoardGrid.get(startSquare - 2).getY() + 5);
+								whiteRectangles.get(pieceMovingTo).setLocation((int)BoardGrid.get(startSquare - 1).getX() + 5, (int)BoardGrid.get(startSquare - 1).getY() + 5);	
+							}else{
+								blackRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(startSquare - 2).getX() + 5, (int)BoardGrid.get(startSquare - 2).getY() + 5);	
+								blackRectangles.get(pieceMovingTo).setLocation((int)BoardGrid.get(startSquare - 1).getX() + 5, (int)BoardGrid.get(startSquare - 1).getY() + 5);							
+							}
+						}
+						//castling
+						game1.makeMove(startSpace, newSpace);
+						
+					//logic for capturing pieces. Made to else if so we don't capture on castle
+					}else if(newSpace.hasPiece()){
+						capturedPiece = newSpace.getPiece();
+						for (int j=0; j<blackRectangles.size(); j++){
+							if(BoardGrid.get(newSquare).contains(blackRectangles.get(j))){
+								//blackRectangles.get(j).setLocation(600 + (capturedEnemies/2) * 50, 50 * (capturedEnemies%2));
+								MoveRectToJail(blackRectangles.get(j));
+								capturedEnemies++;
+								lastEnemyCaptured = j;
+							}
+						}
+						for (int j=0; j<whiteRectangles.size(); j++){
+							if(BoardGrid.get(newSquare).contains(whiteRectangles.get(j))){
+								//whiteRectangles.get(j).setLocation(600 + (capturedEnemies/2) * 50, 50 * (capturedEnemies%2));
+								MoveRectToJail(whiteRectangles.get(j));
+								capturedEnemies++;
+								lastEnemyCaptured = j;
+							}
+						}
+					//}
+					//capturing
+					game1.makeMove(startSpace, newSpace);
+					
+					if(whoseTeam == "white"){
+						moveRectToSquare(whiteRectangles.get(pieceHeld), newSquare);
+						//whiteRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);	
+					}else{
+						moveRectToSquare(blackRectangles.get(pieceHeld), newSquare);
+						//blackRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);							
+					}
+				}else{
+					//vanilla move
+					game1.makeMove(startSpace, newSpace);
+					
+					if(whoseTeam == "white"){
+						moveRectToSquare(whiteRectangles.get(pieceHeld), newSquare);
+						//whiteRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);	
+					}else{
+						moveRectToSquare(blackRectangles.get(pieceHeld), newSquare);
+						//blackRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);							
+					}
+				}
+					
+					//newSpace.placePiece(movingPiece);
+					//startSpace.removePiece();
+					//System.out.println("CHECKING CHECK");
+					if(game1.getBoard().teamInCheck(Game.Team.TEAM2)){
+						System.out.println("Team 2 is in check");
+					}else if(game1.getBoard().teamInCheck(Game.Team.TEAM1)){
+						System.out.println("Team 1 is in check");	
+					}
+					
+				}
+				
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			//whoseTeam = "";
+			repaint();
+	  }
+	  
+	  
 	  public void replicateOpponentMove(String move){
+		  String[] coords = move.split(",");
+		  int startX = Integer.parseInt(coords[1]);
+		  int startY = Integer.parseInt(coords[2]);
+		  //startSquare % 8, startSquare / 8
+		  startSquare = (startX + startY * 8);
+		  //System.out.println("Start x interpret as: " + startX);
+		  if(myTeam == Team.TEAM1){
+			  selectWhitePiece(startSquare);
+		  }else{
+			  selectBlackPiece(startSquare);
+		  }
+		  //System.out.println("start Square after select " + startSquare);
 		  
-		  
-		  
-		  
+		  int endX = Integer.parseInt(coords[3]);
+		  int endY = Integer.parseInt(coords[4]);
+		  newSquare = (endX + endY * 8);
+		  /*for (int j=0; j<BoardGrid.size(); j++){
+			  if(BoardGrid.get(j).contains(endX, endY)){
+				  newSquare = j;
+			  }
+		  }*/
+		  //System.out.println(startSquare + "  " + newSquare);
+		  makeMove();
+		  pieceSelected = false;
 		  myTurn = true;
 	  }
 	  
@@ -461,7 +512,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  }
 
 	  public void mouseEntered(MouseEvent e) {
-		  repaint();
+		  //repaint();
 	  }
 
 	  // Updates the coordinates representing the location of the current rectangle.
@@ -488,11 +539,11 @@ public class BoardGraphics extends Applet implements ActionListener {
 	    update(g);
 	  }
 	  
-	  public static void moveRectToSquare(Rectangle r, int square){
+	  public void moveRectToSquare(Rectangle r, int square){
 		  r.setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);	
 	  }
 	  
-	  public static void MoveRectToJail(Rectangle r){
+	  public void MoveRectToJail(Rectangle r){
 		  if(whoseTeam == "white"){
 			  r.setLocation(600 + (capturedEnemies/2) * 50, 50 * (capturedEnemies%2));
 		  }else{
@@ -500,8 +551,9 @@ public class BoardGraphics extends Applet implements ActionListener {
 		  }
 	  }
 	  
-	  public static void undo(){
+	  public void undo(){
 		  System.out.println("undoing start");
+		  System.out.println(whoseTeam);
 		  if(moveMade){
 			  //System.out.println("made it");
 			  Piece movedPiece = newSpace.getPiece();
@@ -530,6 +582,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 				  //blackRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(startSquare).getX() + 5, (int)BoardGrid.get(startSquare).getY() + 5);							
 			  }
 			  moveMade = false;
+			  //myTurn = true;
 			  //update(g2);
 		  }else{
 			  //nothing to do
@@ -537,11 +590,19 @@ public class BoardGraphics extends Applet implements ActionListener {
 		  }
 	  }
 	  
-	  public static void endTurn(){
-		  moveMade = false;//Change this for networking
+	  public void endTurn(){
+		  
+		  int x1 = startSquare % 8;//startSpace.getxCoordinate();
+		  int y1 = startSquare / 8; //startSpace.getyCoordinate();
+		  int x2 = newSquare % 8;//newSpace.getxCoordinate();
+		  int y2 = newSquare / 8;//newSpace.getyCoordinate();
+		  game1.sendMove(x1 + "," + y1 + "," + x2 + "," + y2);
+		  myTurn = false;
+		  repaint();
+		  //moveMade = false;//Change this for networking
 	  }
 	  
-	  public static void startGame(){
+	  public void startGame(){
 		  System.out.println("MADEIT satarat game");
 		  try {
 			game1.run();
@@ -624,6 +685,8 @@ public class BoardGraphics extends Applet implements ActionListener {
 		    	  //g2.draw(piece);
 		    	  //g2.fill(piece);
 		      }
+		      
+		      
 		      //Rectangle board = new Rectangle(5,5,400,400);
 		      //g2.setPaint(Color.black);
 		      //g2.draw(board);
@@ -720,6 +783,16 @@ public class BoardGraphics extends Applet implements ActionListener {
 	    g2.setPaint(Color.black);
 	    g2.draw(board);
 	    
+	    g2.drawImage(undoButtonImg, undoButton.x, undoButton.y, undoButton.width, undoButton.height, null);
+	    g2.drawImage(endTurnButtonImg, endTurnButton.x, endTurnButton.y, endTurnButton.width, endTurnButton.height, null);
+	    
+	    if(myTurn){
+	    	g2.drawImage(yourTurnImg, yourTurn.x, yourTurn.y, yourTurn.width, yourTurn.height, null);
+	    	System.out.println("MY TURN sign");
+	    }else{
+	    	System.out.println("OPP TURN sign");
+	    	g2.drawImage(oppTurnImg, oppTurn.x, oppTurn.y, oppTurn.width, oppTurn.height, null);
+	    }
 	    if(filler != null){
 		    g2.setPaint(Color.white);
 		    g2.draw(filler);
