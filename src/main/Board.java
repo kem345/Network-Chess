@@ -238,21 +238,11 @@ public class Board {
 	/** Return all spaces that a King can move to 
 	 * @throws Exception **/
 	private Vector<Space> getKingMoves(Space start) {
-		Vector<Space> temp = new Vector<Space>();		
-		// Get all space a king would be allowed to move to and add them to the temp vector
-		temp.addElement(new Space(start.getxCoordinate(), start.getyCoordinate() + 1));
-		temp.addElement(new Space(start.getxCoordinate(), start.getyCoordinate() - 1));
-		temp.addElement(new Space(start.getxCoordinate() + 1, start.getyCoordinate()));
-		temp.addElement(new Space(start.getxCoordinate() - 1, start.getyCoordinate()));
-		temp.addElement(new Space(start.getxCoordinate() + 1, start.getyCoordinate() + 1));
-		temp.addElement(new Space(start.getxCoordinate() - 1, start.getyCoordinate() - 1));
-		temp.addElement(new Space(start.getxCoordinate() + 1, start.getyCoordinate() - 1));
-		temp.addElement(new Space(start.getxCoordinate() - 1, start.getyCoordinate() + 1));
-		
-		// Remove any spaces that go beyond the dimensions of the board
 		Vector<Space> retVec = new Vector<Space>();
-		for(Space sp : temp) {
-			if(!(sp.getxCoordinate() > 7 || sp.getxCoordinate() < 0 || sp.getyCoordinate() > 7 || sp.getyCoordinate() < 0))
+		King king = (King) start.getPiece();
+		// Any space that a King can move to should be included
+		for(Space sp : spaces) {
+			if(king.checkMove(start, sp))
 				retVec.addElement(sp);
 		}
 		
@@ -276,8 +266,7 @@ public class Board {
 		this.removePiece(kingSpace.getxCoordinate(), kingSpace.getyCoordinate());
 		for(Space sp : moves) {
 			// If there is a space for the king to move then it is not in checkmate
-			if((!(sp.hasPiece() && sp.getPiece().getTeam().equals(king.getTeam()))) && 
-					(!spaceInCheck(sp, team)) && king.checkMove(kingSpace, sp)) {
+			if((!(sp.hasPiece() && sp.getPiece().getTeam().equals(king.getTeam()))) && (!spaceInCheck(sp, team))) {
 				this.setPiece(kingSpace.getxCoordinate(), kingSpace.getyCoordinate(), king);
 				return false;
 			}

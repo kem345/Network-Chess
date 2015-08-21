@@ -157,4 +157,23 @@ public class PieceTest {
 		assertFalse(king.equals(new King(1, Team.TEAM2)));
 	}
 
+	@Test
+	public void testHashCode() {
+		Pawn p1 = new Pawn(0, Team.TEAM1);
+		Pawn p2 = new Pawn(0, Team.TEAM1);
+		assertTrue(p1.hashCode() == p2.hashCode());
+		
+		Rook r1 = new Rook(0, null);
+		Rook r2 = new Rook(0, null);
+		assertTrue(r1.hashCode() == r2.hashCode());
+	}
+	
+	@Test
+	public void testUndo() {
+		Pawn p = new Pawn(0, Team.TEAM1);
+		p.moved();
+		assertTrue(p.getMoveCount() == 1);
+		p.undoMove();
+		assertTrue(p.getMoveCount() == 0);
+	}
 }

@@ -97,19 +97,17 @@ public class Space {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
+	public boolean equals(Object o) {
+		// If the object is null or not the right type then return false
+		if(o == null || !(o instanceof Space)) {
+			return false;
+		}		
+		Space s = (Space) o;
+		if(xCoordinate == s.getxCoordinate() && yCoordinate == s.getyCoordinate()) {
 			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Space other = (Space) obj;
-		if (xCoordinate != other.xCoordinate)
-			return false;
-		if (yCoordinate != other.yCoordinate)
-			return false;
-		return true;
+		}
+		
+		return false;
 	}
 		
 }

@@ -203,6 +203,7 @@ public class BoardTest {
 		assertFalse(board.kingCheckmateCheck(Team.TEAM1));
 		board.setPiece(2, 1, new Rook(0, Team.TEAM2));
 		assertTrue(board.kingCheckmateCheck(Team.TEAM1));
+		board.setPiece(4, 0, new Bishop(0,Team.TEAM1));
 	}
 	
 	@Test

@@ -215,7 +215,19 @@ public class GameTest {
 		b.setPiece(3, 3, new Rook(0, Team.TEAM2));
 		g.setBoard(b);
 		assertFalse(g.checkMate(Team.TEAM2));
+	}
+	
+	@Test
+	public void testPromotePawn() throws Exception {
+		Game g = new Game();
+		Board b = new Board();
+		b.createBoard();
 		
+		b.setPiece(0, 7, new Pawn(0, Team.TEAM1));
+		g.setBoard(b);
 		
+		assertTrue(g.getBoard().getSpace(0, 7).getPiece() instanceof Pawn);
+		g.promotePawn(g.getBoard().getSpace(0, 7), new Queen(1, Team.TEAM1));
+		assertTrue(g.getBoard().getSpace(0, 7).getPiece() instanceof Queen);
 	}
 }
