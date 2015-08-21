@@ -48,5 +48,14 @@ public abstract class Piece {
 	// Abstract methods to be implemented by each piece's class
 	
 	abstract public boolean checkMove(Space start, Space end);
-	
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + pieceNumber;
+		result = prime * result + ((team == null) ? 0 : team.hashCode());
+		return result;
+	}
+
 }
