@@ -858,29 +858,27 @@ public class BoardGraphics extends Applet implements ActionListener {
 	    //show possible promotion pieces
 	    //black
 	    if(promotion && whoseTeam=="black"){
-		    r = new Rectangle(600 + (capturedEnemies/2) * 50, 50 * (capturedEnemies%2), 30, 30);
+		    r = new Rectangle(600, 400, 30, 30);
 		    g2.drawImage(bKnightImg, r.x, r.y, r.width, r.height, null);
-		    r = whiteRectangles.get(15);
-		    g2.drawImage(wRookImg, r.x, r.y, r.width, r.height, null);
-		    r = blackRectangles.get(7);
+		    r = new Rectangle(600, 450, 30, 30);
 		    g2.drawImage(bRookImg, r.x, r.y, r.width, r.height, null);
-		    r = blackRectangles.get(2);
+		    r = new Rectangle(650, 400, 30, 30);
 		    g2.drawImage(bBishopImg, r.x, r.y, r.width, r.height, null);
-		    r = blackRectangles.get(3);
+		    r = new Rectangle(650, 450, 30, 30);
 		    g2.drawImage(bQueenImg, r.x, r.y, r.width, r.height, null);
-		    r = blackRectangles.get(4);
+		    r = new Rectangle(700, 400, 30, 30);
 		    g2.drawImage(bKingImg, r.x, r.y, r.width, r.height, null);
 		//white
 	    }else if(promotion && whoseTeam=="white"){
-	    	r = whiteRectangles.get(9);
+	    	r = new Rectangle(600, 400, 30, 30);
 		    g2.drawImage(wKnightImg, r.x, r.y, r.width, r.height, null);
-		    r = whiteRectangles.get(8);
+		    r = new Rectangle(600, 450, 30, 30);
 		    g2.drawImage(wRookImg, r.x, r.y, r.width, r.height, null);
-		    r = whiteRectangles.get(10);
+		    r = new Rectangle(650, 400, 30, 30);
 		    g2.drawImage(wBishopImg, r.x, r.y, r.width, r.height, null);
-		    r = whiteRectangles.get(11);
+		    r = new Rectangle(650, 450, 30, 30);
 		    g2.drawImage(wQueenImg, r.x, r.y, r.width, r.height, null);
-		    r = whiteRectangles.get(12);
+		    r = new Rectangle(700, 400, 30, 30);
 		    g2.drawImage(wKingImg, r.x, r.y, r.width, r.height, null);
 		    
 	    }
