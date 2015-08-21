@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.Vector;
 
 import Pieces.*;
+import Networking.Connection;
 
 public class Game {
 
@@ -16,62 +17,25 @@ public class Game {
 		TEAM1, TEAM2
 	}
 	
-	public BufferedReader in;
-	public PrintWriter out;
-	private static int PORT = 8889;
-	public static String SERVERADDRESS = "localhost";
-	
 	private Vector<Piece> team1CapturedPieces = new Vector<Piece>();
 	private Vector<Piece> team2CapturedPieces = new Vector<Piece>();
 	private Board board;
 	private Team turn = Team.TEAM1;
 	private Team yourTeam;
-	private Socket socket;
+	private Connection connection;
 
 	// Constructor 
 	
 	public Game() {
 		board = new Board();
-		try {
-		socket = new Socket(SERVERADDRESS,PORT);
-		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		out = new PrintWriter(socket.getOutputStream(),true);
-		} catch (Exception e) { 
-			System.out.println("Unable to establish connection");
-		}
 	}
 	
-	/** Establishes connection with the server. Gets a message from the server telling
-	 * whether you are team1 or team2 and when both teams have started 
-	 * @throws Exception
-	 */
-	public void run() throws Exception{
-		while(true){
-			String message = in.readLine();
-			if(message != null && message.startsWith("TEAM")){
-				if(message.equals("TEAM1")) 
-					yourTeam = Team.TEAM1;
-				else
-					yourTeam = Team.TEAM2;
-			}else if(message != null && message.startsWith("START")){
-				return;
-			}
-		}
-		
+	public void connect() {
+		connection = new Connection();
 	}
 	
-	/** Listens for an opponents move and then returns the servers message for the move **/
-	public String listen() throws IOException {
-		while(true) {
-			String message = in.readLine();
-			if(message != null && message.startsWith("MOVE"))
-				return message;
-		}
-	}
-	
-	public void sendMove(String move)
-	{
-		out.println("MOVE,"+move);
+	public Connection getConnection() {
+		return this.connection;
 	}
 	
 	public Board getBoard() {
@@ -97,6 +61,8 @@ public class Game {
 		return team2CapturedPieces;
 	}
 
+	/** Capture the specified team2 piece 
+	 * @throws Exception **/
 	public void captureTeam2Piece(Piece piece) throws Exception {
 		if(piece.getTeam().equals(Team.TEAM2)) 
 			this.team2CapturedPieces.addElement(piece);
@@ -229,6 +195,11 @@ public class Game {
 		}
 	}
 
+	/** Promote the pawn on the given space to the newPiece **/
+	public void promotePawn(Space space, Piece newPiece) {
+		board.promotePiece(space, newPiece);
+	}
+	
 	/** Returns true if the given team is in checkmate; false otherwise **/
 	public boolean checkMate(Team team) throws Exception {
 		// If the king is not in check or it can move itself out of check then return false
@@ -319,7 +290,7 @@ public class Game {
 			throw new Exception("Invalid message recieved from server");
 		}
 		// The string should be of the form:
-		// Move,startx,starty,endx,endy
+		// MOVE,startx,starty,endx,endy
 		int startx = Character.getNumericValue(coords[1].charAt(0));
 		int starty = Character.getNumericValue(coords[2].charAt(0));
 		int endx = Character.getNumericValue(coords[3].charAt(0));
