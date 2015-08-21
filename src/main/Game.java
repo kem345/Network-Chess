@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Map.Entry;
 import java.util.Vector;
 
 import Pieces.*;
@@ -23,7 +24,7 @@ public class Game {
 	private Vector<Piece> team1CapturedPieces = new Vector<Piece>();
 	private Vector<Piece> team2CapturedPieces = new Vector<Piece>();
 	private Board board;
-	private Team turn;
+	private Team turn = Team.TEAM1;
 	private Team yourTeam;
 	private Socket socket;
 
@@ -73,6 +74,10 @@ public class Game {
 	
 	public Board getBoard() {
 		return board;
+	}
+	
+	public void setBoard(Board board) {
+		this.board = board;
 	}
 
 	public Vector<Piece> getTeam1CapturedPieces() {
@@ -177,7 +182,29 @@ public class Game {
 			
 			return;
 		}
-				
+		
+		// check en passant
+		if(board.canEnpassant(start, end) && !end.hasPiece()) {
+			// If it fits en passant requirements and the moving piece in team 1 then 
+			// the pawn being captured must be on row 5
+			if(piece.getTeam().equals(Team.TEAM1)) {
+				// Move the piece from start to finish position
+				board.removePiece(start.getxCoordinate(), start.getyCoordinate());
+				piece.moved();
+				board.setPiece(end.getxCoordinate(), end.getyCoordinate(), piece);
+				board.removePiece(end.getxCoordinate(), 4);
+			} else {
+				// If it fits en passant requirements and the moving piece in team 2 then 
+				// the pawn being captured must be on row 3
+				// Move the piece from start to finish position
+				board.removePiece(start.getxCoordinate(), start.getyCoordinate());
+				piece.moved();
+				board.setPiece(end.getxCoordinate(), end.getyCoordinate(), piece);
+				board.removePiece(end.getxCoordinate(), 3);
+			}
+			return;
+		}
+		
 		// If the piece is allowed to move to the new space then allow it
 		if(approveMove) {
 			// If there is a piece in the new spot then capture it
@@ -198,6 +225,47 @@ public class Game {
 			
 			changeTurn();
 		}
+	}
+
+	/** Returns true if the given team is in checkmate; false otherwise **/
+	public boolean checkMate(Team team) throws Exception {
+		// If the king is not in check or it can move itself out of check then return false
+		if(!board.kingCheckmateCheck(team))
+			return false;
+		
+		boolean stillCheck = true;
+		// Go through each piece on the team and see if it can make a move to get the king out of check
+		for(Entry<Space, Piece> entry : board.getTeamPieces(team).entrySet()) {
+			// Go through all possible valid moves
+			for(Space space : getAllValid(entry.getKey())) {
+				// If the end space has a piece, get it so it can be replaced
+				Piece p = space.getPiece();
+				// Make the move, see if the team is still in check then undo the move
+				makeMove(entry.getKey(), space);
+				stillCheck = board.teamInCheck(team);
+				undoMove(entry.getKey(), space, p);
+				// if there is a move to get out of check, return false
+				if(!stillCheck)
+					return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	/** Returns a vector of all of the space that the piece on the start space is allowed to move to **/
+	private Vector<Space> getAllValid(Space start) {
+		Vector<Space> moves = new Vector<>();
+		// King moves are checked somewhere else
+		if(start.getPiece() instanceof King)
+			return moves;
+		
+		for(Space space : board.getSpaces()) {
+			if(isValidMove(start, space))
+				moves.addElement(space);
+		}
+		
+		return moves;
 	}
 	
 	/**
