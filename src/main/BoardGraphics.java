@@ -360,6 +360,9 @@ public class BoardGraphics extends Applet implements ActionListener {
 						  }
 						  whiteSpecials.add(whitePawns.get(pieceHeld));
 						  whitePawns.remove(pieceHeld);
+
+						  promotion = false;
+						  promotionHappened = true;
 					}else{
 						if(i==0){
 							  blackPromoResults.add(bKnightImg);
@@ -384,11 +387,12 @@ public class BoardGraphics extends Applet implements ActionListener {
 						}
 						  blackSpecials.add(blackPawns.get(pieceHeld));
 						  blackPawns.remove(pieceHeld);
+	
+						  promotion = false;
+						  promotionHappened = true;
 					}
 				}
 		  }
-		  promotion = false;
-		  promotionHappened = true;
 		  repaint();
 	  }
 	  
@@ -606,6 +610,14 @@ public class BoardGraphics extends Applet implements ActionListener {
 					//newSpace.placePiece(movingPiece);
 					//startSpace.removePiece();
 					//System.out.println("CHECKING CHECK");
+					
+					
+					if(game1.checkMate(Game.Team.TEAM1)){
+						System.out.println("Team 1 has been put in CheckMate");
+					}else if(game1.checkMate(Game.Team.TEAM2)){
+						System.out.println("Team 2 has been put in CheckMate");
+					}
+					
 					if(game1.getBoard().teamInCheck(Game.Team.TEAM2)){
 						System.out.println("Team 2 is in check");
 					}else if(game1.getBoard().teamInCheck(Game.Team.TEAM1)){
@@ -648,6 +660,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 			  
 			  //get what piece was promoted to
 			  String pType = coords[6];
+			  System.out.println(pType);
 			  if(whoseTeam == "white"){
 				  if(pType=="Knight"){
 					  whitePromoResults.add(wKnightImg);
@@ -1011,15 +1024,19 @@ public class BoardGraphics extends Applet implements ActionListener {
 	    r = blackSpecials.get(4);
 	    g2.drawImage(bKingImg, r.x, r.y, r.width, r.height, null);
 	    
+	    //System.out.println("PROMO RESULTS:");
 	    
 	    for(int i=0; i<whitePromoResults.size(); i++){
 	    	r = whiteSpecials.get(i+8);
 		    g2.drawImage(whitePromoResults.get(i), r.x, r.y, r.width, r.height, null);
+		    //System.out.println(whitePromoResults.get(i).toString());
 	    }
 	    for(int i=0; i<blackPromoResults.size(); i++){
 	    	r = blackSpecials.get(i+8);
 		    g2.drawImage(blackPromoResults.get(i), r.x, r.y, r.width, r.height, null);
+		    //System.out.println(blackPromoResults.get(i).toString());
 	    }
+	    
 	    Rectangle board = new Rectangle(5,5,400,400);
 	    g2.setPaint(Color.black);
 	    g2.draw(board);
