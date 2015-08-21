@@ -36,7 +36,9 @@ public class Game {
 		socket = new Socket(SERVERADDRESS,PORT);
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		out = new PrintWriter(socket.getOutputStream(),true);
-		} catch (Exception e) { }
+		} catch (Exception e) { 
+			System.out.println("Unable to establish connection");
+		}
 	}
 	
 	/** Establishes connection with the server. Gets a message from the server telling
@@ -46,12 +48,12 @@ public class Game {
 	public void run() throws Exception{
 		while(true){
 			String message = in.readLine();
-			if(message.startsWith("TEAM")){
+			if(message != null && message.startsWith("TEAM")){
 				if(message.equals("TEAM1")) 
 					yourTeam = Team.TEAM1;
 				else
 					yourTeam = Team.TEAM2;
-			}else if(message.startsWith("START")){
+			}else if(message != null && message.startsWith("START")){
 				return;
 			}
 		}
@@ -62,7 +64,7 @@ public class Game {
 	public String listen() throws IOException {
 		while(true) {
 			String message = in.readLine();
-			if(message.startsWith("MOVE"))
+			if(message != null && message.startsWith("MOVE"))
 				return message;
 		}
 	}

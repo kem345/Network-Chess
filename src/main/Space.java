@@ -88,17 +88,28 @@ public class Space {
 	
 	
 	@Override
-	public boolean equals(Object o) {
-		// If the object is null or not the right type then return false
-		if(o == null || !(o instanceof Space)) {
-			return false;
-		}		
-		Space s = (Space) o;
-		if(xCoordinate == s.getxCoordinate() && yCoordinate == s.getyCoordinate()) {
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + xCoordinate;
+		result = prime * result + yCoordinate;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
 			return true;
-		}
-		
-		return false;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Space other = (Space) obj;
+		if (xCoordinate != other.xCoordinate)
+			return false;
+		if (yCoordinate != other.yCoordinate)
+			return false;
+		return true;
 	}
 		
 }
