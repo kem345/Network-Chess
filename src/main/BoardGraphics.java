@@ -13,6 +13,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 import Pieces.King;
+import Pieces.Pawn;
 import Pieces.Piece;
 import Pieces.Rook;
 import main.Game;
@@ -87,6 +88,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  Game game1 = new Game();
 	  Board gameBoard = new Board();
 	  //Variable to determine team of picked piece
+	  //useful for simulating opponent's turn
 	  String whoseTeam = "";
 	  //variable to track team of player
 	  Team myTeam = null;
@@ -94,6 +96,9 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  //Keep track of number of captured pieces for later use
 	  int capturedEnemies = 0;
 	  int lastEnemyCaptured = 0;
+	  
+	  int capturedWhites = 0;
+	  int capturedBlacks = 0;
 	  
 	  //track if an undo was done
 	  //static boolean undoMade = false;
@@ -156,6 +161,9 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  Space newSpace;
 	  Piece capturedPiece =  null;
 	 // Piece movingPiece;
+	  
+	  //if a pawn is going through promotion we'll show possible pieces
+	  boolean promotion = false;
 	 
 	  boolean gameStarted = false;
 	  String latestOpponentMove = "";
@@ -188,11 +196,11 @@ public class BoardGraphics extends Applet implements ActionListener {
 		bBishopImg = new ImageIcon("../images/blackBishop.png").getImage();
 		bKingImg = new ImageIcon("../images/blackKing.png").getImage();
 		bQueenImg = new ImageIcon("../images/blackQueen.png").getImage();
-		undoButtonImg = new ImageIcon("../images/undoButton.png").getImage();
-		endTurnButtonImg = new ImageIcon("../images/endTurnButton.png").getImage();
+		undoButtonImg = new ImageIcon("../images/blackQueen.png").getImage();//ImageIcon("../images/undoButton.png").getImage();UNCOMMENT THIS WHEN HAVE IMAGES
+		endTurnButtonImg = new ImageIcon("../images/blackKing.png").getImage();//ImageIcon("../images/endTurnButton.png").getImage();UNCOMMENT THIS WHEN HAVE IMAGES
 
-		yourTurnImg = new ImageIcon("../images/yourTurn.png").getImage();
-		oppTurnImg = new ImageIcon("../images/oppTurn.png").getImage();
+		yourTurnImg = new ImageIcon("../images/whiteRook.png").getImage();//ImageIcon("../images/yourTurn.png").getImage(); UNCOMMENT THIS WHEN HAVE IMAGES
+		oppTurnImg = new ImageIcon("../images/blackRook.png").getImage();//ImageIcon("../images/oppTurn.png").getImage();UNCOMMENT THIS WHEN HAVE IMAGES
 		
 		//background
 	    setBackground(Color.white);
@@ -200,6 +208,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 	    addMouseMotionListener(this);
 	    addMouseListener(this);
 	    ip = ipAddress;
+		game1.connect(ip);
 	    startGame();
 	  }
 
@@ -216,15 +225,15 @@ public class BoardGraphics extends Applet implements ActionListener {
 
 	  // Handles the event of a user releasing the mouse button.
 	  public void mouseReleased(MouseEvent e) {
-		  System.out.println(ip);
+		//  System.out.println(ip);
 	    // Checks whether or not the cursor is inside of the rectangle when the
 	    // user releases the mouse button.
-		possibleMoves.clear();
+		//possibleMoves.clear();
 		//if(isTurn)
 		
-		if(undoButton.contains(e.getX(), e.getY())){
+		if(e!= null && undoButton.contains(e.getX(), e.getY())){
 			undo();
-		}else if(endTurnButton.contains(e.getX(), e.getY())){
+		}else if(e!= null && endTurnButton.contains(e.getX(), e.getY())){
 			endTurn();
 		}
 		
@@ -235,14 +244,18 @@ public class BoardGraphics extends Applet implements ActionListener {
 					pieceSelected = false;
 					newSquare = -1;
 					for (int j=0; j<BoardGrid.size(); j++){
-						if(BoardGrid.get(j).contains(e.getX(), e.getY())){
+						if(BoardGrid.get(j).contains(e.getX(), e.getY()) && possibleMoves.contains(BoardGrid.get(j))){
 							newSquare = j;
 						}
 					}
 					if(newSquare > -1){
+						System.out.println("MAKING MOVE CONFROM");
 						makeMove();
 						moveMade = true;
+						//repaint();
 					}else{
+						System.out.println("MAKING MOVE UNDONE");
+						possibleMoves.clear();
 						pieceSelected = false;
 					}
 					//System.out.println("MAking move");
@@ -250,6 +263,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 					
 					//myTurn = false;
 				}else if (!moveMade){
+					possibleMoves.clear();
 					System.out.println("Selecting my own piece");
 					for (int j=0; j<BoardGrid.size(); j++){
 						if(BoardGrid.get(j).contains(e.getX(), e.getY())){
@@ -262,7 +276,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 						selectBlackPiece(startSquare);
 					}
 					if(pieceSelected){
-						possibleMoves.clear();
+						
 						for(int k=0; k<64; k++){
 							newSpace = gameBoard.getSpace(k % 8, k / 8);
 							//Piece movingPiece = startSpace.getPiece();
@@ -288,7 +302,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 				System.out.println("Waiting for opponent");
 				//you've made your move so wait for opponent's turn
 				try {
-					latestOpponentMove = game1.listen();
+					latestOpponentMove = game1.getConnection().listen();
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -369,6 +383,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 			//Moving Pieces logic
 			try {
 				if(game1.isValidMove(startSpace, newSpace)){
+					//castling
 					if(startSpace.getPiece() instanceof King &&
 							newSpace.hasPiece() && 
 							newSpace.getPiece() instanceof Rook &&
@@ -406,14 +421,39 @@ public class BoardGraphics extends Applet implements ActionListener {
 						//castling
 						game1.makeMove(startSpace, newSpace);
 						
-					//logic for capturing pieces. Made to else if so we don't capture on castle
+					//en passant
+					}else if(game1.getBoard().canEnpassant(startSpace, newSpace) && !newSpace.hasPiece()){
+						int passantSquare = 0;
+						if(whoseTeam=="white"){
+							passantSquare = newSquare - 8;
+						}else{
+							passantSquare = newSquare + 8;
+						}
+						Space passantSpace = gameBoard.getSpace(passantSquare % 8, passantSquare / 8);
+						capturedPiece = passantSpace.getPiece();
+						for (int j=0; j<blackRectangles.size(); j++){
+							if(BoardGrid.get(passantSquare).contains(blackRectangles.get(j))){
+								MoveRectToJail(blackRectangles.get(j));
+								capturedBlacks++;
+								lastEnemyCaptured = j;
+							}
+						}
+						for (int j=0; j<whiteRectangles.size(); j++){
+							if(BoardGrid.get(passantSquare).contains(whiteRectangles.get(j))){
+								MoveRectToJail(whiteRectangles.get(j));
+								capturedWhites++;
+								lastEnemyCaptured = j;
+							}
+						}
+						
+					//logic for normal capturing pieces. Made to else if to avoid other special moves
 					}else if(newSpace.hasPiece()){
 						capturedPiece = newSpace.getPiece();
 						for (int j=0; j<blackRectangles.size(); j++){
 							if(BoardGrid.get(newSquare).contains(blackRectangles.get(j))){
 								//blackRectangles.get(j).setLocation(600 + (capturedEnemies/2) * 50, 50 * (capturedEnemies%2));
 								MoveRectToJail(blackRectangles.get(j));
-								capturedEnemies++;
+								capturedBlacks++;
 								lastEnemyCaptured = j;
 							}
 						}
@@ -421,7 +461,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 							if(BoardGrid.get(newSquare).contains(whiteRectangles.get(j))){
 								//whiteRectangles.get(j).setLocation(600 + (capturedEnemies/2) * 50, 50 * (capturedEnemies%2));
 								MoveRectToJail(whiteRectangles.get(j));
-								capturedEnemies++;
+								capturedWhites++;
 								lastEnemyCaptured = j;
 							}
 						}
@@ -448,7 +488,17 @@ public class BoardGraphics extends Applet implements ActionListener {
 						//blackRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);							
 					}
 				}
-					
+					//Now check for black promotion 
+					if(newSpace.getPiece() instanceof Pawn && whoseTeam=="black" && newSpace.getyCoordinate() == 7){
+						promotion = true;
+						repaint();
+						//do black promotion
+					//else if white promotion
+					}else if(newSpace.getPiece() instanceof Pawn && whoseTeam=="white" && newSpace.getyCoordinate() == 0){
+						//do white promotion
+						promotion = true;
+						repaint();
+					}
 					//newSpace.placePiece(movingPiece);
 					//startSpace.removePiece();
 					//System.out.println("CHECKING CHECK");
@@ -466,7 +516,9 @@ public class BoardGraphics extends Applet implements ActionListener {
 			}
 			
 			//whoseTeam = "";
+			possibleMoves.clear();
 			repaint();
+			
 	  }
 	  
 	  
@@ -496,6 +548,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 		  makeMove();
 		  pieceSelected = false;
 		  myTurn = true;
+		  repaint();
 	  }
 	  
 	  // This method required by MouseListener.
@@ -545,9 +598,9 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  
 	  public void MoveRectToJail(Rectangle r){
 		  if(whoseTeam == "white"){
-			  r.setLocation(600 + (capturedEnemies/2) * 50, 50 * (capturedEnemies%2));
+			  r.setLocation(600 + (capturedBlacks/2) * 50, 50 * (capturedBlacks%2));
 		  }else{
-			  r.setLocation(600 + (capturedEnemies/2) * 50, 50 * (capturedEnemies%2) + 110);
+			  r.setLocation(600 + (capturedWhites/2) * 50, 50 * (capturedWhites%2) + 110);
 		  }
 	  }
 	  
@@ -596,7 +649,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 		  int y1 = startSquare / 8; //startSpace.getyCoordinate();
 		  int x2 = newSquare % 8;//newSpace.getxCoordinate();
 		  int y2 = newSquare / 8;//newSpace.getyCoordinate();
-		  game1.sendMove(x1 + "," + y1 + "," + x2 + "," + y2);
+		  game1.getConnection().sendMove(x1 + "," + y1 + "," + x2 + "," + y2);
 		  myTurn = false;
 		  repaint();
 		  //moveMade = false;//Change this for networking
@@ -605,7 +658,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  public void startGame(){
 		  System.out.println("MADEIT satarat game");
 		  try {
-			game1.run();
+			game1.getConnection().run();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			System.out.println("game start fail");
@@ -629,6 +682,8 @@ public class BoardGraphics extends Applet implements ActionListener {
 			  myTurn = true;
 		  }
 	  }
+	  
+	  
 
 	  public void update(Graphics g) {
 	    Graphics2D g2 = (Graphics2D) g;
@@ -799,6 +854,37 @@ public class BoardGraphics extends Applet implements ActionListener {
 		    g2.fill(filler);
 		    filler = null;
 	    }
+	    
+	    //show possible promotion pieces
+	    //black
+	    if(promotion && whoseTeam=="black"){
+		    r = new Rectangle(600 + (capturedEnemies/2) * 50, 50 * (capturedEnemies%2), 30, 30);
+		    g2.drawImage(bKnightImg, r.x, r.y, r.width, r.height, null);
+		    r = whiteRectangles.get(15);
+		    g2.drawImage(wRookImg, r.x, r.y, r.width, r.height, null);
+		    r = blackRectangles.get(7);
+		    g2.drawImage(bRookImg, r.x, r.y, r.width, r.height, null);
+		    r = blackRectangles.get(2);
+		    g2.drawImage(bBishopImg, r.x, r.y, r.width, r.height, null);
+		    r = blackRectangles.get(3);
+		    g2.drawImage(bQueenImg, r.x, r.y, r.width, r.height, null);
+		    r = blackRectangles.get(4);
+		    g2.drawImage(bKingImg, r.x, r.y, r.width, r.height, null);
+		//white
+	    }else if(promotion && whoseTeam=="white"){
+	    	r = whiteRectangles.get(9);
+		    g2.drawImage(wKnightImg, r.x, r.y, r.width, r.height, null);
+		    r = whiteRectangles.get(8);
+		    g2.drawImage(wRookImg, r.x, r.y, r.width, r.height, null);
+		    r = whiteRectangles.get(10);
+		    g2.drawImage(wBishopImg, r.x, r.y, r.width, r.height, null);
+		    r = whiteRectangles.get(11);
+		    g2.drawImage(wQueenImg, r.x, r.y, r.width, r.height, null);
+		    r = whiteRectangles.get(12);
+		    g2.drawImage(wKingImg, r.x, r.y, r.width, r.height, null);
+		    
+	    }
+	    
 	    /*Rectangle piece = new Rectangle(0,0,30,30);
   	  	piece.setLocation(600, 100);
   	  	g2.setPaint(Color.orange);
