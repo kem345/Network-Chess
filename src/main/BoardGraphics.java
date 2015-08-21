@@ -108,6 +108,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 	static class SMCanvas extends Canvas implements MouseListener, MouseMotionListener {
 	  //game logic pieces
 	  static Game game1 = new Game();
+
 	  Board gameBoard = new Board();
 	  //Variable to determine team of picked piece
 	  static String whoseTeam = "";
@@ -134,8 +135,8 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  boolean pieceSelected = false;
 	  //has a move been made this turn?
 	  static boolean moveMade = false;
-	  //is it my turn still
-	  boolean myTurn = true;
+	  static //is it my turn still
+	  boolean myTurn = false;
 	  //piece we select
 	  static int pieceHeld = 0;
 	  static int startSquare = 0;
@@ -172,7 +173,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 	 // Piece movingPiece;
 
 	  static boolean gameStarted = false;
-	  
+	  String latestOpponentMove = "";
 	  
 	  public SMCanvas() {
 		//start logic stuff
@@ -278,6 +279,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 										blackRectangles.get(pieceMovingTo).setLocation((int)BoardGrid.get(startSquare - 1).getX() + 5, (int)BoardGrid.get(startSquare - 1).getY() + 5);							
 									}
 								}
+								//castling
 								game1.makeMove(startSpace, newSpace);
 								
 							//logic for capturing pieces. Made to else if so we don't capture on castle
@@ -300,7 +302,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 									}
 								}
 							//}
-							
+							//capturing
 							game1.makeMove(startSpace, newSpace);
 							
 							if(whoseTeam == "white"){
@@ -311,6 +313,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 								//blackRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);							
 							}
 						}else{
+							//vanilla move
 							game1.makeMove(startSpace, newSpace);
 							
 							if(whoseTeam == "white"){
@@ -321,11 +324,17 @@ public class BoardGraphics extends Applet implements ActionListener {
 								//blackRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);							
 							}
 						}
+							int x1 = startSpace.getxCoordinate();
+							int y1 = startSpace.getyCoordinate();
+							int x2 = newSpace.getxCoordinate();
+							int y2 = newSpace.getyCoordinate();
+							game1.sendMove(x1 + "," + y1 + "," + x2 + "," + y2);
 							
 							moveMade = true;
+							myTurn = false;
 							//newSpace.placePiece(movingPiece);
 							//startSpace.removePiece();
-							System.out.println("CHECKING CHECK");
+							//System.out.println("CHECKING CHECK");
 							if(game1.getBoard().teamInCheck(Game.Team.TEAM2)){
 								System.out.println("Team 2 is in check");
 							}else if(game1.getBoard().teamInCheck(Game.Team.TEAM1)){
@@ -417,11 +426,26 @@ public class BoardGraphics extends Applet implements ActionListener {
 				repaint();
 
 				}else{
-					//you've made your move so do nothing
-					String move = game1.listen();
+					//you've made your move so wait for opponent's turn
+					try {
+						latestOpponentMove = game1.listen();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					System.out.println(latestOpponentMove);
+					replicateOpponentMove(latestOpponentMove);
 				}
 			}
 		}
+	  
+	  public void replicateOpponentMove(String move){
+		  
+		  
+		  
+		  
+		  myTurn = true;
+	  }
 	  
 	  // This method required by MouseListener.
 
@@ -529,7 +553,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 		  
 		  //moveMade = false;//Change this for networking
 		  Team team = null;
-		  System.out.println("Waiting for game");
+		  //System.out.println("Waiting for game");
 		  while(true){
 			  if(game1.getYourTeam() != null){
 				  team = game1.getYourTeam();
@@ -537,9 +561,12 @@ public class BoardGraphics extends Applet implements ActionListener {
 			  }
 		  }
 		  
-		  System.out.println("found game");
+		  System.out.println("found game" + " " + team);
 		  myTeam = team;
 		  gameStarted = true;
+		  if(team == Team.TEAM1){
+			  myTurn = true;
+		  }
 	  }
 
 	  public void update(Graphics g) {
