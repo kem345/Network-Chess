@@ -70,7 +70,7 @@ public class Game {
 	public void changeTurn() {
 		if(turn.equals(Team.TEAM1))
 			turn = Team.TEAM2;
-		else if(turn.equals(Team.TEAM2))
+		else
 			turn = Team.TEAM1;
 	}
 

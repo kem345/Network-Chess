@@ -95,11 +95,21 @@ public class SpaceTest {
 	public void testEquals() {
 		Space s1 = new Space(5, 5);
 		Space s2 = new Space(5, 5);
-		Space s3 = new Space(1,1);
+		Space s3 = new Space(1,5);
+		Space s4 = new Space(5,1);
 		assertTrue(s1.equals(s2));
 		assertFalse(s1.equals(s3));
+		assertFalse(s1.equals(s4));
 		assertFalse(s1.equals(null));
 		assertFalse(s1.equals(new Pawn(0, Team.TEAM1)));
+	}
+	
+	@Test
+	public void testHashCode() {
+		Space s1 = new Space(1,1);
+		Space s2 = new Space(1,1);
+		
+		assertTrue(s1.hashCode() == s2.hashCode());
 	}
 
 }
