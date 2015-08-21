@@ -1,10 +1,5 @@
 package main;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.util.Map.Entry;
 import java.util.Vector;
 
@@ -107,6 +102,10 @@ public class Game {
 		// check castle move
 		if(piece instanceof King && end.hasPiece() && end.getPiece() instanceof Rook &&
 				board.canCastle(piece.getTeam(), (Rook)end.getPiece()))
+			return true;
+		
+		// check en passant
+		if(board.canEnpassant(start, end) && !end.hasPiece())
 			return true;
 		
 		// Check the piece is allowed to move to the new space
