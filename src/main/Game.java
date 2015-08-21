@@ -25,8 +25,8 @@ public class Game {
 		board = new Board();
 	}
 	
-	public void connect() {
-		connection = new Connection();
+	public void connect(String ip) {
+		connection = new Connection(ip);
 	}
 	
 	public Connection getConnection() {

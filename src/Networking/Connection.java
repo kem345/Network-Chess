@@ -13,12 +13,13 @@ public class Connection {
 	public BufferedReader in;
 	public PrintWriter out;
 	private static int PORT = 8889;
-	public static String SERVERADDRESS = "localhost";
+	public static String serverAddress = "localhost";
 	private Socket socket;
 	
-	public Connection() {
+	public Connection(String ip) {
 		try {
-			socket = new Socket(SERVERADDRESS,PORT);
+			serverAddress = ip;
+			socket = new Socket(serverAddress,PORT);
 			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			out = new PrintWriter(socket.getOutputStream(),true);
 		} catch (Exception e) { 
