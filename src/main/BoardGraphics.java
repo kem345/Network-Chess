@@ -12,9 +12,12 @@ import java.util.Vector;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
+import Pieces.Bishop;
 import Pieces.King;
+import Pieces.Knight;
 import Pieces.Pawn;
 import Pieces.Piece;
+import Pieces.Queen;
 import Pieces.Rook;
 import main.Game;
 import main.Game.Team;
@@ -120,12 +123,21 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  int pieceHeld = 0;
 	  int startSquare = 0;
 	  int newSquare = 0;
+	  String pieceType = "";
 	  //board graphics
 	  ArrayList<Rectangle> BoardGrid = new ArrayList<Rectangle>();
 	  //piece graphics
-	  ArrayList<Rectangle> whiteRectangles = new ArrayList<Rectangle>();
-	  ArrayList<Rectangle> blackRectangles = new ArrayList<Rectangle>();
+	  ArrayList<Rectangle> whitePawns = new ArrayList<Rectangle>();
+	  ArrayList<Rectangle> blackPawns = new ArrayList<Rectangle>();
+	  ArrayList<Rectangle> whiteSpecials = new ArrayList<Rectangle>();
+	  ArrayList<Rectangle> blackSpecials = new ArrayList<Rectangle>();
 	  ArrayList<Rectangle> possibleMoves = new ArrayList<Rectangle>();
+	  ArrayList<Rectangle> promoRects = new ArrayList<Rectangle>();
+
+	  ArrayList<Image> whitePromoResults = new ArrayList<Image>();
+	  ArrayList<Image> blackPromoResults = new ArrayList<Image>();
+	  
+	  
 	  //piece logics
 	  Vector<Piece> whitePieces = new Vector<Piece>();
 	  Vector<Piece> blackPieces = new Vector<Piece>();
@@ -164,6 +176,8 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  
 	  //if a pawn is going through promotion we'll show possible pieces
 	  boolean promotion = false;
+	  boolean promotionHappened = false;
+	  String promoType = "";
 	 
 	  boolean gameStarted = false;
 	  String latestOpponentMove = "";
@@ -293,6 +307,10 @@ public class BoardGraphics extends Applet implements ActionListener {
 							possibleMoves.add(BoardGrid.get(startSquare));
 						}*/
 					}
+				}else if (promotion){
+					System.out.println("promoting");
+					selectPromoPiece(e);
+					
 				}else{
 					System.out.println("FAILING TO DO ANYTHING ON MY TURN");
 				}
@@ -315,65 +333,107 @@ public class BoardGraphics extends Applet implements ActionListener {
 			}
 		}
 	  
+	  public void selectPromoPiece(MouseEvent e){
+		  for(int i=0; i<promoRects.size(); i++){
+				if(promoRects.get(i).contains(e.getX(), e.getY())){
+					if(whoseTeam == "white"){
+						  if(i==0){
+							  whitePromoResults.add(wKnightImg);
+							  Knight newKnight = new Knight(whiteSpecials.size() + 1, myTeam);
+							  game1.promotePawn(newSpace, newKnight);
+							  promoType = "Knight";
+						  }else if(i==1){
+							  whitePromoResults.add(wRookImg);
+							  Rook newRook = new Rook(whiteSpecials.size() + 1, myTeam);
+							  game1.promotePawn(newSpace, newRook);
+							  promoType = "Rook";
+						  }else if(i==2){
+							  whitePromoResults.add(wBishopImg);
+							  Bishop newBishop = new Bishop(whiteSpecials.size() + 1, myTeam);
+							  game1.promotePawn(newSpace, newBishop);
+							  promoType = "Bishop";
+						  }else if(i==3){
+							  Queen newQueen = new Queen(whiteSpecials.size() + 1, myTeam);
+							  game1.promotePawn(newSpace, newQueen);
+							  whitePromoResults.add(wQueenImg);
+							  promoType = "Queen";
+						  }
+						  whiteSpecials.add(whitePawns.get(pieceHeld));
+						  whitePawns.remove(pieceHeld);
+					}else{
+						if(i==0){
+							  blackPromoResults.add(bKnightImg);
+							  Knight newKnight = new Knight(blackSpecials.size() + 1, myTeam);
+							  game1.promotePawn(newSpace, newKnight);
+							  promoType = "Knight";
+						}else if(i==1){
+							  blackPromoResults.add(bRookImg);
+							  Rook newRook = new Rook(blackSpecials.size() + 1, myTeam);
+							  game1.promotePawn(newSpace, newRook);
+							  promoType = "Rook";
+						}else if(i==2){
+							  blackPromoResults.add(bBishopImg);
+							  Bishop newBishop = new Bishop(blackSpecials.size() + 1, myTeam);
+							  game1.promotePawn(newSpace, newBishop);
+							  promoType = "Bishop";
+						}else if(i==3){
+							  blackPromoResults.add(bQueenImg);
+							  Queen newQueen = new Queen(blackSpecials.size() + 1, myTeam);
+							  game1.promotePawn(newSpace, newQueen);
+							  promoType = "Queen";
+						}
+						  blackSpecials.add(blackPawns.get(pieceHeld));
+						  blackPawns.remove(pieceHeld);
+					}
+				}
+		  }
+		  promotion = false;
+		  promotionHappened = true;
+		  repaint();
+	  }
+	  
 	  public void selectWhitePiece(int startSquare){
-		  for(int i=0; i<whiteRectangles.size(); i++){
-				if(BoardGrid.get(startSquare).contains(whiteRectangles.get(i))){
-					//System.out.println("Got Piece " + i);
+		  for(int i=0; i<whitePawns.size(); i++){
+				if(BoardGrid.get(startSquare).contains(whitePawns.get(i))){
 					pieceSelected = true;
 					pieceHeld = i;
-					/*for (int j=0; j<BoardGrid.size(); j++){
-						if(BoardGrid.get(j).contains(whiteRectangles.get(i))){
-							startSquare = j;
-							//System.out.println(startSquare % 8);
-							//System.out.println(startSquare / 8);
-						}
-					}*/
 					startSpace = gameBoard.getSpace(startSquare % 8, startSquare / 8);
-					//System.out.println(startSpace.hasPiece());
-					//possible move highlighter
-					/*possibleMoves.clear();
-					for(int k=0; k<64; k++){
-						newSpace = gameBoard.getSpace(k % 8, k / 8);
-						//Piece movingPiece = startSpace.getPiece();
-						try {
-							if(game1.isValidMove(startSpace, newSpace)){
-								possibleMoves.add(BoardGrid.get(k));
-							}
-						} catch (Exception e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-					}
-					if(possibleMoves.isEmpty()){
-						possibleMoves.add(BoardGrid.get(startSquare));
-					}*/
+
 					whoseTeam = "white";
+					pieceType = "pawn";
 				}
-			}
-		  //System.out.println(startSquare);
+		  }
+		  for(int i=0; i<whiteSpecials.size(); i++){
+				if(BoardGrid.get(startSquare).contains(whiteSpecials.get(i))){
+					pieceSelected = true;
+					pieceHeld = i;
+					startSpace = gameBoard.getSpace(startSquare % 8, startSquare / 8);
+
+					whoseTeam = "white";
+					pieceType = "special";
+				}
+		  }
 	  }
 	  
 	  public void selectBlackPiece(int startSquare){
-		  for(int i=0; i<blackRectangles.size(); i++){
-			  if(BoardGrid.get(startSquare).contains(blackRectangles.get(i))){
-					//System.out.println("Got Piece " + i);
+		  for(int i=0; i<blackPawns.size(); i++){
+			  if(BoardGrid.get(startSquare).contains(blackPawns.get(i))){
 					pieceSelected = true;
 					pieceHeld = i;
-					/*for (int j=0; j<BoardGrid.size(); j++){
-						if(BoardGrid.get(j).contains(blackRectangles.get(i))){
-							startSquare = j;
-							//System.out.println(startSquare % 8);
-							//System.out.println(startSquare / 8);
-						}
-					}*/
 					startSpace = gameBoard.getSpace(startSquare % 8, startSquare / 8);
-					//System.out.println(startSpace.hasPiece());
-					//possible move highlighter
-					
 					whoseTeam = "black";
+					pieceType = "pawn";
 				}
-			}
-		  //System.out.println(startSquare);
+		  }
+		  for(int i=0; i<blackSpecials.size(); i++){
+			  if(BoardGrid.get(startSquare).contains(blackSpecials.get(i))){
+					pieceSelected = true;
+					pieceHeld = i;
+					startSpace = gameBoard.getSpace(startSquare % 8, startSquare / 8);
+					whoseTeam = "black";
+					pieceType = "special";
+				}
+		  }
 	  }
 	  
 	  
@@ -389,33 +449,43 @@ public class BoardGraphics extends Applet implements ActionListener {
 							newSpace.getPiece() instanceof Rook &&
 							game1.getBoard().canCastle(startSpace.getPiece().getTeam(), (Rook)newSpace.getPiece())){
 						int pieceMovingTo = 0;
-						for(int i=0; i<whiteRectangles.size(); i++){
-							if(BoardGrid.get(newSquare).contains(whiteRectangles.get(i))){
+						for(int i=0; i<whitePawns.size(); i++){
+							if(BoardGrid.get(newSquare).contains(whitePawns.get(i))){
 								pieceMovingTo = i;
 							}
 						}
-						for(int i=0; i<blackRectangles.size(); i++){
-							if(BoardGrid.get(newSquare).contains(blackRectangles.get(i))){
+						for(int i=0; i<whiteSpecials.size(); i++){
+							if(BoardGrid.get(newSquare).contains(whiteSpecials.get(i))){
 								pieceMovingTo = i;
 							}
 						}
-
+						for(int i=0; i<blackPawns.size(); i++){
+							if(BoardGrid.get(newSquare).contains(blackPawns.get(i))){
+								pieceMovingTo = i;
+							}
+						}
+						for(int i=0; i<blackSpecials.size(); i++){
+							if(BoardGrid.get(newSquare).contains(blackSpecials.get(i))){
+								pieceMovingTo = i;
+							}
+						}
+						
 						System.out.println(startSquare + "qwe q" + newSquare);
 						if(startSquare < newSquare){
 							if(whoseTeam == "white"){
-								whiteRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(startSquare + 2).getX() + 5, (int)BoardGrid.get(startSquare + 2).getY() + 5);
-								whiteRectangles.get(pieceMovingTo).setLocation((int)BoardGrid.get(startSquare + 1).getX() + 5, (int)BoardGrid.get(startSquare + 1).getY() + 5);	
+								whiteSpecials.get(pieceHeld).setLocation((int)BoardGrid.get(startSquare + 2).getX() + 5, (int)BoardGrid.get(startSquare + 2).getY() + 5);
+								whiteSpecials.get(pieceMovingTo).setLocation((int)BoardGrid.get(startSquare + 1).getX() + 5, (int)BoardGrid.get(startSquare + 1).getY() + 5);	
 							}else{
-								blackRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(startSquare + 2).getX() + 5, (int)BoardGrid.get(startSquare + 2).getY() + 5);
-								blackRectangles.get(pieceMovingTo).setLocation((int)BoardGrid.get(startSquare + 1).getX() + 5, (int)BoardGrid.get(startSquare + 1).getY() + 5);								
+								blackSpecials.get(pieceHeld).setLocation((int)BoardGrid.get(startSquare + 2).getX() + 5, (int)BoardGrid.get(startSquare + 2).getY() + 5);
+								blackSpecials.get(pieceMovingTo).setLocation((int)BoardGrid.get(startSquare + 1).getX() + 5, (int)BoardGrid.get(startSquare + 1).getY() + 5);								
 							}
 						}else{
 							if(whoseTeam == "white"){
-								whiteRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(startSquare - 2).getX() + 5, (int)BoardGrid.get(startSquare - 2).getY() + 5);
-								whiteRectangles.get(pieceMovingTo).setLocation((int)BoardGrid.get(startSquare - 1).getX() + 5, (int)BoardGrid.get(startSquare - 1).getY() + 5);	
+								whiteSpecials.get(pieceHeld).setLocation((int)BoardGrid.get(startSquare - 2).getX() + 5, (int)BoardGrid.get(startSquare - 2).getY() + 5);
+								whiteSpecials.get(pieceMovingTo).setLocation((int)BoardGrid.get(startSquare - 1).getX() + 5, (int)BoardGrid.get(startSquare - 1).getY() + 5);	
 							}else{
-								blackRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(startSquare - 2).getX() + 5, (int)BoardGrid.get(startSquare - 2).getY() + 5);	
-								blackRectangles.get(pieceMovingTo).setLocation((int)BoardGrid.get(startSquare - 1).getX() + 5, (int)BoardGrid.get(startSquare - 1).getY() + 5);							
+								blackSpecials.get(pieceHeld).setLocation((int)BoardGrid.get(startSquare - 2).getX() + 5, (int)BoardGrid.get(startSquare - 2).getY() + 5);	
+								blackSpecials.get(pieceMovingTo).setLocation((int)BoardGrid.get(startSquare - 1).getX() + 5, (int)BoardGrid.get(startSquare - 1).getY() + 5);							
 							}
 						}
 						//castling
@@ -431,16 +501,30 @@ public class BoardGraphics extends Applet implements ActionListener {
 						}
 						Space passantSpace = gameBoard.getSpace(passantSquare % 8, passantSquare / 8);
 						capturedPiece = passantSpace.getPiece();
-						for (int j=0; j<blackRectangles.size(); j++){
-							if(BoardGrid.get(passantSquare).contains(blackRectangles.get(j))){
-								MoveRectToJail(blackRectangles.get(j));
+						for (int j=0; j<blackPawns.size(); j++){
+							if(BoardGrid.get(passantSquare).contains(blackPawns.get(j))){
+								MoveRectToJail(blackPawns.get(j));
 								capturedBlacks++;
 								lastEnemyCaptured = j;
 							}
 						}
-						for (int j=0; j<whiteRectangles.size(); j++){
-							if(BoardGrid.get(passantSquare).contains(whiteRectangles.get(j))){
-								MoveRectToJail(whiteRectangles.get(j));
+						for (int j=0; j<blackSpecials.size(); j++){
+							if(BoardGrid.get(passantSquare).contains(blackSpecials.get(j))){
+								MoveRectToJail(blackSpecials.get(j));
+								capturedBlacks++;
+								lastEnemyCaptured = j;
+							}
+						}
+						for (int j=0; j<whitePawns.size(); j++){
+							if(BoardGrid.get(passantSquare).contains(whitePawns.get(j))){
+								MoveRectToJail(whitePawns.get(j));
+								capturedWhites++;
+								lastEnemyCaptured = j;
+							}
+						}
+						for (int j=0; j<whiteSpecials.size(); j++){
+							if(BoardGrid.get(passantSquare).contains(whiteSpecials.get(j))){
+								MoveRectToJail(whiteSpecials.get(j));
 								capturedWhites++;
 								lastEnemyCaptured = j;
 							}
@@ -449,18 +533,30 @@ public class BoardGraphics extends Applet implements ActionListener {
 					//logic for normal capturing pieces. Made to else if to avoid other special moves
 					}else if(newSpace.hasPiece()){
 						capturedPiece = newSpace.getPiece();
-						for (int j=0; j<blackRectangles.size(); j++){
-							if(BoardGrid.get(newSquare).contains(blackRectangles.get(j))){
-								//blackRectangles.get(j).setLocation(600 + (capturedEnemies/2) * 50, 50 * (capturedEnemies%2));
-								MoveRectToJail(blackRectangles.get(j));
+						for (int j=0; j<blackPawns.size(); j++){
+							if(BoardGrid.get(newSquare).contains(blackPawns.get(j))){
+								MoveRectToJail(blackPawns.get(j));
 								capturedBlacks++;
 								lastEnemyCaptured = j;
 							}
 						}
-						for (int j=0; j<whiteRectangles.size(); j++){
-							if(BoardGrid.get(newSquare).contains(whiteRectangles.get(j))){
-								//whiteRectangles.get(j).setLocation(600 + (capturedEnemies/2) * 50, 50 * (capturedEnemies%2));
-								MoveRectToJail(whiteRectangles.get(j));
+						for (int j=0; j<blackSpecials.size(); j++){
+							if(BoardGrid.get(newSquare).contains(blackSpecials.get(j))){
+								MoveRectToJail(blackSpecials.get(j));
+								capturedBlacks++;
+								lastEnemyCaptured = j;
+							}
+						}
+						for (int j=0; j<whitePawns.size(); j++){
+							if(BoardGrid.get(newSquare).contains(whitePawns.get(j))){
+								MoveRectToJail(whitePawns.get(j));
+								capturedWhites++;
+								lastEnemyCaptured = j;
+							}
+						}
+						for (int j=0; j<whiteSpecials.size(); j++){
+							if(BoardGrid.get(newSquare).contains(whiteSpecials.get(j))){
+								MoveRectToJail(whiteSpecials.get(j));
 								capturedWhites++;
 								lastEnemyCaptured = j;
 							}
@@ -469,22 +565,30 @@ public class BoardGraphics extends Applet implements ActionListener {
 					//capturing
 					game1.makeMove(startSpace, newSpace);
 					
-					if(whoseTeam == "white"){
-						moveRectToSquare(whiteRectangles.get(pieceHeld), newSquare);
+					if(whoseTeam == "white" && pieceType == "pawn"){
+						moveRectToSquare(whitePawns.get(pieceHeld), newSquare);
 						//whiteRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);	
+					}else if(whoseTeam == "white" && pieceType == "special"){
+						moveRectToSquare(whiteSpecials.get(pieceHeld), newSquare);
+					}else if(whoseTeam == "black" && pieceType == "pawn"){
+						moveRectToSquare(blackPawns.get(pieceHeld), newSquare);
 					}else{
-						moveRectToSquare(blackRectangles.get(pieceHeld), newSquare);
+						moveRectToSquare(blackSpecials.get(pieceHeld), newSquare);
 						//blackRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);							
 					}
 				}else{
 					//vanilla move
 					game1.makeMove(startSpace, newSpace);
 					
-					if(whoseTeam == "white"){
-						moveRectToSquare(whiteRectangles.get(pieceHeld), newSquare);
+					if(whoseTeam == "white" && pieceType == "pawn"){
+						moveRectToSquare(whitePawns.get(pieceHeld), newSquare);
 						//whiteRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);	
+					}else if(whoseTeam == "white" && pieceType == "special"){
+						moveRectToSquare(whiteSpecials.get(pieceHeld), newSquare);
+					}else if(whoseTeam == "black" && pieceType == "pawn"){
+						moveRectToSquare(blackPawns.get(pieceHeld), newSquare);
 					}else{
-						moveRectToSquare(blackRectangles.get(pieceHeld), newSquare);
+						moveRectToSquare(blackSpecials.get(pieceHeld), newSquare);
 						//blackRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);							
 					}
 				}
@@ -524,6 +628,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  
 	  public void replicateOpponentMove(String move){
 		  String[] coords = move.split(",");
+		  
 		  int startX = Integer.parseInt(coords[1]);
 		  int startY = Integer.parseInt(coords[2]);
 		  //startSquare % 8, startSquare / 8
@@ -533,6 +638,58 @@ public class BoardGraphics extends Applet implements ActionListener {
 			  selectWhitePiece(startSquare);
 		  }else{
 			  selectBlackPiece(startSquare);
+		  }
+		  //longer message => promotion happened
+		  if(coords.length > 6){
+			  for(int i=0; i<coords.length; i++){
+				  System.out.println(coords[i]);  
+			  }
+			  //System.out.println(coords);
+			  
+			  //get what piece was promoted to
+			  String pType = coords[6];
+			  if(whoseTeam == "white"){
+				  if(pType=="Knight"){
+					  whitePromoResults.add(wKnightImg);
+					  Knight newKnight = new Knight(whiteSpecials.size() + 1, myTeam);
+					  game1.promotePawn(newSpace, newKnight);
+				  }else if(pType=="Rook"){
+					  whitePromoResults.add(wRookImg);
+					  Rook newRook = new Rook(whiteSpecials.size() + 1, myTeam);
+					  game1.promotePawn(newSpace, newRook);
+				  }else if(pType=="Bishop"){
+					  whitePromoResults.add(wBishopImg);
+					  Bishop newBishop = new Bishop(whiteSpecials.size() + 1, myTeam);
+					  game1.promotePawn(newSpace, newBishop);
+				  }else if(pType=="Queen"){
+					  Queen newQueen = new Queen(whiteSpecials.size() + 1, myTeam);
+					  game1.promotePawn(newSpace, newQueen);
+					  whitePromoResults.add(wQueenImg);
+				  }
+				  whiteSpecials.add(whitePawns.get(pieceHeld));
+				  whitePawns.remove(pieceHeld);
+			}else{
+				if(pType=="Knight"){
+					  blackPromoResults.add(bKnightImg);
+					  Knight newKnight = new Knight(blackSpecials.size() + 1, myTeam);
+					  game1.promotePawn(newSpace, newKnight);
+				}else if(pType=="Rook"){
+					  blackPromoResults.add(bRookImg);
+					  Rook newRook = new Rook(blackSpecials.size() + 1, myTeam);
+					  game1.promotePawn(newSpace, newRook);
+				}else if(pType=="Bishop"){
+					  blackPromoResults.add(bBishopImg);
+					  Bishop newBishop = new Bishop(blackSpecials.size() + 1, myTeam);
+					  game1.promotePawn(newSpace, newBishop);
+				}else if(pType=="Queen"){
+					  blackPromoResults.add(bQueenImg);
+					  Queen newQueen = new Queen(blackSpecials.size() + 1, myTeam);
+					  game1.promotePawn(newSpace, newQueen);
+				}
+				  blackSpecials.add(blackPawns.get(pieceHeld));
+				  blackPawns.remove(pieceHeld);
+			}
+			  pieceType = "special";
 		  }
 		  //System.out.println("start Square after select " + startSquare);
 		  
@@ -605,7 +762,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  }
 	  
 	  public void undo(){
-		  System.out.println("undoing start");
+		  /*System.out.println("undoing start");
 		  System.out.println(whoseTeam);
 		  if(moveMade){
 			  //System.out.println("made it");
@@ -640,7 +797,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 		  }else{
 			  //nothing to do
 			  System.out.println("Nothing doing undo");
-		  }
+		  }*/
 	  }
 	  
 	  public void endTurn(){
@@ -649,7 +806,11 @@ public class BoardGraphics extends Applet implements ActionListener {
 		  int y1 = startSquare / 8; //startSpace.getyCoordinate();
 		  int x2 = newSquare % 8;//newSpace.getxCoordinate();
 		  int y2 = newSquare / 8;//newSpace.getyCoordinate();
-		  game1.getConnection().sendMove(x1 + "," + y1 + "," + x2 + "," + y2);
+		  if(promotionHappened){
+			  game1.getConnection().sendMove(x1 + "," + y1 + "," + x2 + "," + y2 + ",Promote," + promoType + "," + blackSpecials.size());  
+		  }else{
+			  game1.getConnection().sendMove(x1 + "," + y1 + "," + x2 + "," + y2);
+		  }
 		  myTurn = false;
 		  repaint();
 		  //moveMade = false;//Change this for networking
@@ -657,14 +818,15 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  
 	  public void startGame(){
 		  System.out.println("MADEIT satarat game");
+		  Team a = null;
 		  try {
-			game1.getConnection().run();
+			a = game1.getConnection().run();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			System.out.println("game start fail");
 			e.printStackTrace();
 		}
-		  
+		  game1.setYourTeam(a);
 		  //moveMade = false;//Change this for networking
 		  Team team = null;
 		  //System.out.println("Waiting for game");
@@ -726,21 +888,36 @@ public class BoardGraphics extends Applet implements ActionListener {
 					g2.setPaint(Color.white);
 					g2.draw(whiteSpace);
 		      }
-		      for( int i=0; i<16; i++){
+		      for( int i=0; i<8; i++){
 		    	  Rectangle piece = new Rectangle();
 		    	  piece.setBounds(i*50 % 400 + 15, i/8 * 50 + 15, 30, 30);
-		    	  blackRectangles.add(piece);
+		    	  blackSpecials.add(piece);
 		      }
-		      
-		      for( int i=48; i<64; i++){
+		      for( int i=8; i<16; i++){
 		    	  Rectangle piece = new Rectangle();
 		    	  piece.setBounds(i*50 % 400 + 15, i/8 * 50 + 15, 30, 30);
-		    	  whiteRectangles.add(piece);
-		    	  //g2.setPaint(Color.blue);
-		    	  //g2.draw(piece);
-		    	  //g2.fill(piece);
+		    	  blackPawns.add(piece);
 		      }
 		      
+		      for( int i=48; i<56; i++){
+		    	  Rectangle piece = new Rectangle();
+		    	  piece.setBounds(i*50 % 400 + 15, i/8 * 50 + 15, 30, 30);
+		    	  whitePawns.add(piece);
+		      }
+		      for( int i=56; i<64; i++){
+		    	  Rectangle piece = new Rectangle();
+		    	  piece.setBounds(i*50 % 400 + 15, i/8 * 50 + 15, 30, 30);
+		    	  whiteSpecials.add(piece);
+		      }
+		      
+		      for(int i=0; i<7; i++){
+		    	  Rectangle promoPiece = new Rectangle(600 + 50*(i%2), 400 + 50*(i/2), 30, 30);
+		    	  promoRects.add(promoPiece);
+		      }
+		      /*for(int i=0; i<7; i++){
+		    	  //Rectangle promoPiece = new Rectangle(600 + 50*(i%2), 400 + 50*(i/2), 30, 30);
+		    	  blackPromos.add(promoPiece);
+		      }*/
 		      
 		      //Rectangle board = new Rectangle(5,5,400,400);
 		      //g2.setPaint(Color.black);
@@ -784,56 +961,65 @@ public class BoardGraphics extends Applet implements ActionListener {
 	    }
 	    
 	    Rectangle r = null;
-	    for(int i=0;i<8;i++){
-		    r = whiteRectangles.get(i);
+	    for(int i=0;i<whitePawns.size();i++){
+		    r = whitePawns.get(i);
 		    g2.drawImage(wPawnImg, r.x, r.y, r.width, r.height, null);	    	
 	    }
-	    for(int i=8;i<16;i++){
-		    r = blackRectangles.get(i);
+	    for(int i=0;i<blackPawns.size();i++){
+		    r = blackPawns.get(i);
 		    g2.drawImage(bPawnImg, r.x, r.y, r.width, r.height, null);	    	
 	    }
-	    r = whiteRectangles.get(9);
+	    r = whiteSpecials.get(1);
 	    g2.drawImage(wKnightImg, r.x, r.y, r.width, r.height, null);
-	    r = whiteRectangles.get(14);
+	    r = whiteSpecials.get(6);
 	    g2.drawImage(wKnightImg, r.x, r.y, r.width, r.height, null);
 
-	    r = blackRectangles.get(1);
+	    r = blackSpecials.get(1);
 	    g2.drawImage(bKnightImg, r.x, r.y, r.width, r.height, null);
-	    r = blackRectangles.get(6);
+	    r = blackSpecials.get(6);
 	    g2.drawImage(bKnightImg, r.x, r.y, r.width, r.height, null);
 	    
-	    r = whiteRectangles.get(8);
+	    r = whiteSpecials.get(0);
 	    g2.drawImage(wRookImg, r.x, r.y, r.width, r.height, null);
-	    r = whiteRectangles.get(15);
+	    r = whiteSpecials.get(7);
 	    g2.drawImage(wRookImg, r.x, r.y, r.width, r.height, null);
 	    
-	    r = blackRectangles.get(0);
+	    r = blackSpecials.get(0);
 	    g2.drawImage(bRookImg, r.x, r.y, r.width, r.height, null);
-	    r = blackRectangles.get(7);
+	    r = blackSpecials.get(7);
 	    g2.drawImage(bRookImg, r.x, r.y, r.width, r.height, null);
 
-	    r = whiteRectangles.get(10);
+	    r = whiteSpecials.get(2);
 	    g2.drawImage(wBishopImg, r.x, r.y, r.width, r.height, null);
-	    r = whiteRectangles.get(13);
+	    r = whiteSpecials.get(5);
 	    g2.drawImage(wBishopImg, r.x, r.y, r.width, r.height, null);
 	    
-	    r = blackRectangles.get(2);
+	    r = blackSpecials.get(2);
 	    g2.drawImage(bBishopImg, r.x, r.y, r.width, r.height, null);
-	    r = blackRectangles.get(5);
+	    r = blackSpecials.get(5);
 	    g2.drawImage(bBishopImg, r.x, r.y, r.width, r.height, null);
 	    
-	    r = whiteRectangles.get(11);
+	    r = whiteSpecials.get(3);
 	    g2.drawImage(wQueenImg, r.x, r.y, r.width, r.height, null);
 
-	    r = blackRectangles.get(3);
+	    r = blackSpecials.get(3);
 	    g2.drawImage(bQueenImg, r.x, r.y, r.width, r.height, null);
 	    
-	    r = whiteRectangles.get(12);
+	    r = whiteSpecials.get(4);
 	    g2.drawImage(wKingImg, r.x, r.y, r.width, r.height, null);
 	    
-	    r = blackRectangles.get(4);
+	    r = blackSpecials.get(4);
 	    g2.drawImage(bKingImg, r.x, r.y, r.width, r.height, null);
 	    
+	    
+	    for(int i=0; i<whitePromoResults.size(); i++){
+	    	r = whiteSpecials.get(i+8);
+		    g2.drawImage(whitePromoResults.get(i), r.x, r.y, r.width, r.height, null);
+	    }
+	    for(int i=0; i<blackPromoResults.size(); i++){
+	    	r = blackSpecials.get(i+8);
+		    g2.drawImage(blackPromoResults.get(i), r.x, r.y, r.width, r.height, null);
+	    }
 	    Rectangle board = new Rectangle(5,5,400,400);
 	    g2.setPaint(Color.black);
 	    g2.draw(board);
@@ -858,29 +1044,39 @@ public class BoardGraphics extends Applet implements ActionListener {
 	    //show possible promotion pieces
 	    //black
 	    if(promotion && whoseTeam=="black"){
-		    r = new Rectangle(600, 400, 30, 30);
+		    r = promoRects.get(0);
 		    g2.drawImage(bKnightImg, r.x, r.y, r.width, r.height, null);
-		    r = new Rectangle(600, 450, 30, 30);
+		    r = promoRects.get(1);
 		    g2.drawImage(bRookImg, r.x, r.y, r.width, r.height, null);
-		    r = new Rectangle(650, 400, 30, 30);
+		    r = promoRects.get(2);
 		    g2.drawImage(bBishopImg, r.x, r.y, r.width, r.height, null);
-		    r = new Rectangle(650, 450, 30, 30);
+		    r = promoRects.get(3);
 		    g2.drawImage(bQueenImg, r.x, r.y, r.width, r.height, null);
-		    r = new Rectangle(700, 400, 30, 30);
-		    g2.drawImage(bKingImg, r.x, r.y, r.width, r.height, null);
 		//white
 	    }else if(promotion && whoseTeam=="white"){
-	    	r = new Rectangle(600, 400, 30, 30);
+	    	r = promoRects.get(0);
 		    g2.drawImage(wKnightImg, r.x, r.y, r.width, r.height, null);
-		    r = new Rectangle(600, 450, 30, 30);
+		    r = promoRects.get(1);
 		    g2.drawImage(wRookImg, r.x, r.y, r.width, r.height, null);
-		    r = new Rectangle(650, 400, 30, 30);
+		    r = promoRects.get(2);
 		    g2.drawImage(wBishopImg, r.x, r.y, r.width, r.height, null);
-		    r = new Rectangle(650, 450, 30, 30);
+		    r = promoRects.get(3);
 		    g2.drawImage(wQueenImg, r.x, r.y, r.width, r.height, null);
-		    r = new Rectangle(700, 400, 30, 30);
-		    g2.drawImage(wKingImg, r.x, r.y, r.width, r.height, null);
 		    
+	    }else{
+	    	g2.setPaint(Color.white);
+	    	r = promoRects.get(0);
+	    	g2.draw(r);
+		    g2.fill(r);
+		    r = promoRects.get(1);
+		    g2.draw(r);
+		    g2.fill(r);
+		    r = promoRects.get(2);
+		    g2.draw(r);
+		    g2.fill(r);
+		    r = promoRects.get(3);
+		    g2.draw(r);
+		    g2.fill(r);
 	    }
 	    
 	    /*Rectangle piece = new Rectangle(0,0,30,30);
