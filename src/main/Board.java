@@ -272,15 +272,19 @@ public class Board {
 		King king = (King) kingSpace.getPiece();
 		// Get all moves the king can make
 		Vector<Space> moves = getKingMoves(kingSpace);
+		// Remove the king so it is not in the way of any checks
+		this.removePiece(kingSpace.getxCoordinate(), kingSpace.getyCoordinate());
 		for(Space sp : moves) {
 			// If there is a space for the king to move then it is not in checkmate
 			if((!(sp.hasPiece() && sp.getPiece().getTeam().equals(king.getTeam()))) && 
 					(!spaceInCheck(sp, team)) && king.checkMove(kingSpace, sp)) {
+				this.setPiece(kingSpace.getxCoordinate(), kingSpace.getyCoordinate(), king);
 				return false;
 			}
 		}
 		
-		//TODO: Check if move can take you out of check
+		// Replace the king
+		this.setPiece(kingSpace.getxCoordinate(), kingSpace.getyCoordinate(), king);
 		return true;
 	}
 	

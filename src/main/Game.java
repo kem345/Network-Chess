@@ -24,7 +24,7 @@ public class Game {
 	private Vector<Piece> team1CapturedPieces = new Vector<Piece>();
 	private Vector<Piece> team2CapturedPieces = new Vector<Piece>();
 	private Board board;
-	private Team turn;
+	private Team turn = Team.TEAM1;
 	private Team yourTeam;
 	private Socket socket;
 
@@ -74,6 +74,10 @@ public class Game {
 	
 	public Board getBoard() {
 		return board;
+	}
+	
+	public void setBoard(Board board) {
+		this.board = board;
 	}
 
 	public Vector<Piece> getTeam1CapturedPieces() {
@@ -229,7 +233,7 @@ public class Game {
 		if(!board.kingCheckmateCheck(team))
 			return false;
 		
-		boolean hasMove = true;
+		boolean stillCheck = true;
 		// Go through each piece on the team and see if it can make a move to get the king out of check
 		for(Entry<Space, Piece> entry : board.getTeamPieces(team).entrySet()) {
 			// Go through all possible valid moves
@@ -238,10 +242,10 @@ public class Game {
 				Piece p = space.getPiece();
 				// Make the move, see if the team is still in check then undo the move
 				makeMove(entry.getKey(), space);
-				hasMove = board.teamInCheck(team);
+				stillCheck = board.teamInCheck(team);
 				undoMove(entry.getKey(), space, p);
 				// if there is a move to get out of check, return false
-				if(hasMove)
+				if(!stillCheck)
 					return false;
 			}
 		}
@@ -252,6 +256,10 @@ public class Game {
 	/** Returns a vector of all of the space that the piece on the start space is allowed to move to **/
 	private Vector<Space> getAllValid(Space start) {
 		Vector<Space> moves = new Vector<>();
+		// King moves are checked somewhere else
+		if(start.getPiece() instanceof King)
+			return moves;
+		
 		for(Space space : board.getSpaces()) {
 			if(isValidMove(start, space))
 				moves.addElement(space);
