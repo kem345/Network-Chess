@@ -95,9 +95,25 @@ public class Game {
 		
 	}
 
-	/** Returns true if the piece on the start space is allowed to move to the end space **/
-	public boolean isValidMove(Space start, Space end) {
+	/** Returns true if the piece on the start space is allowed to move to the end space 
+	 * @throws Exception **/
+	public boolean isValidMove(Space start, Space end) throws Exception {
 		Piece piece = start.getPiece();
+		/*Piece endPiece = end.getPiece();
+		
+		// Simulate making the move to see if it puts your team in check
+		this.board.removePiece(start.getxCoordinate(), start.getyCoordinate());
+		this.board.setPiece(end.getxCoordinate(), end.getyCoordinate(), piece);
+		// IF the move puts the team in check then it is not valid
+		if(board.teamInCheck(piece.getTeam())) {
+			start.placePiece(piece);
+			end.placePiece(endPiece);
+			return false;
+		}
+		
+		// replace the piece to how they were
+		start.placePiece(piece);
+		end.placePiece(endPiece);*/
 		
 		// check castle move
 		if(piece instanceof King && end.hasPiece() && end.getPiece() instanceof Rook &&
@@ -225,8 +241,9 @@ public class Game {
 		return true;
 	}
 	
-	/** Returns a vector of all of the space that the piece on the start space is allowed to move to **/
-	private Vector<Space> getAllValid(Space start) {
+	/** Returns a vector of all of the space that the piece on the start space is allowed to move to 
+	 * @throws Exception **/
+	private Vector<Space> getAllValid(Space start) throws Exception {
 		Vector<Space> moves = new Vector<>();
 		// King moves are checked somewhere else
 		if(start.getPiece() instanceof King)
@@ -285,9 +302,11 @@ public class Game {
 	 * @throws Exception **/
 	public void updateOpponentsMove(String move) throws Exception {
 		String[] coords = move.split(",");
-		if(coords.length != 5){
+		
+		if(!move.contains("Promote") && coords.length != 5){
 			throw new Exception("Invalid message recieved from server");
 		}
+		
 		// The string should be of the form:
 		// MOVE,startx,starty,endx,endy
 		int startx = Character.getNumericValue(coords[1].charAt(0));
@@ -295,11 +314,33 @@ public class Game {
 		int endx = Character.getNumericValue(coords[3].charAt(0));
 		int endy = Character.getNumericValue(coords[4].charAt(0));
 		
+		// Make the move specified by the opponent
 		Space start = board.getSpace(startx, starty);
-		Piece p = start.getPiece();
+		Space end = board.getSpace(endx, endy);
+		Team team = start.getPiece().getTeam();
+		makeMove(start, end);
 		
-		board.removePiece(startx, starty);
-		board.setPiece(endx, endy, p);
+		if(move.contains("Promote")) {
+			if(coords.length != 8) {
+				throw new Exception("Invalid promote message recieved from server");
+			}
+			String type = coords[6];
+			int pieceNum = Integer.parseInt(coords[7]);
+			Piece newPiece = null;
+			if(type.equals("Knight"))
+				newPiece = new Knight(pieceNum, team);
+			else if(type.equals("Bishop"))
+				newPiece = new Bishop(pieceNum, team);
+			else if(type.equals("Rook"))
+				newPiece = new Rook(pieceNum, team);
+			else if(type.equals("Queen"))
+				newPiece = new Queen(pieceNum, team);
+			else
+				throw new Exception("Invalid promote message recieved from server");
+			
+			this.promotePawn(end, newPiece);
+		}
+		
 	}
 	
 	/** Undoes a move by putting the piece on the new space back on the original space **/
