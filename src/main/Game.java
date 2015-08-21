@@ -98,6 +98,9 @@ public class Game {
 	/** Returns true if the piece on the start space is allowed to move to the end space 
 	 * @throws Exception **/
 	public boolean isValidMove(Space start, Space end) throws Exception {
+		if(!start.hasPiece())
+			return false;
+		
 		Piece piece = start.getPiece();
 		Piece endPiece = end.getPiece();
 		
