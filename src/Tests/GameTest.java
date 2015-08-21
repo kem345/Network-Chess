@@ -92,6 +92,21 @@ public class GameTest {
 		assertFalse(g.getBoard().getSpace(5, 5).hasPiece());
 		g.makeMove(g.getBoard().getSpace(5, 5), g.getBoard().getSpace(4, 3));
 	}
+	
+	@Test
+	public void testPutOwnTeamInCheck() throws Exception {
+		Game g = new Game();
+		Board b = new Board();
+		b.createBoard();
+		
+		b.setPiece(4, 7, new King(0, Team.TEAM2));
+		b.setPiece(4, 5, new Rook(0, Team.TEAM2));
+		b.setPiece(4, 2, new Queen(0, Team.TEAM1));
+		
+		g.setBoard(b);
+		// Test you can't put your own team in check
+		assertFalse(g.isValidMove(g.getBoard().getSpace(4, 5), g.getBoard().getSpace(6, 5)));
+	}
 
 	@Test
 	public void testValidCastleMove() throws Exception {

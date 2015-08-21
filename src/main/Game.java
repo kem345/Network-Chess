@@ -99,7 +99,7 @@ public class Game {
 	 * @throws Exception **/
 	public boolean isValidMove(Space start, Space end) throws Exception {
 		Piece piece = start.getPiece();
-		/*Piece endPiece = end.getPiece();
+		Piece endPiece = end.getPiece();
 		
 		// Simulate making the move to see if it puts your team in check
 		this.board.removePiece(start.getxCoordinate(), start.getyCoordinate());
@@ -113,7 +113,7 @@ public class Game {
 		
 		// replace the piece to how they were
 		start.placePiece(piece);
-		end.placePiece(endPiece);*/
+		end.placePiece(endPiece);
 		
 		// check castle move
 		if(piece instanceof King && end.hasPiece() && end.getPiece() instanceof Rook &&
