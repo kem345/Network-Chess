@@ -19,6 +19,10 @@ public class GameTest {
 		assertFalse(game.getTeam1CapturedPieces().contains(pawn));
 		game.captureTeam1Piece(pawn);
 		assertTrue(game.getTeam1CapturedPieces().contains(pawn));
+		
+		Pawn p2 = new Pawn(1, Team.TEAM2);
+		game.captureTeam1Piece(p2);
+		assertTrue(game.getTeam1CapturedPieces().size() == 1);
 	}
 
 	@Test
@@ -27,6 +31,16 @@ public class GameTest {
 		assertFalse(game.getTeam2CapturedPieces().contains(pawn));
 		game.captureTeam2Piece(pawn);
 		assertTrue(game.getTeam2CapturedPieces().contains(pawn));
+		
+		Pawn p2 = new Pawn(1, Team.TEAM1);
+		game.captureTeam2Piece(p2);
+		assertTrue(game.getTeam2CapturedPieces().size() == 1);
+	}
+	
+	@Test
+	public void testConnection() {
+		Game g = new Game();
+		assertTrue(g.getConnection() == null);
 	}
 
 	@Test
@@ -59,6 +73,8 @@ public class GameTest {
 	public void testIsValidMove() throws Exception {
 		Game g = new Game();
 		g.startGame();
+		
+		assertFalse(g.isValidMove(g.getBoard().getSpace(4, 4), g.getBoard().getSpace(4, 3)));
 		// Test normal move (pawn initial move)
 		assertTrue(g.isValidMove(g.getBoard().getSpace(1, 1), g.getBoard().getSpace(1, 2)));
 		// Test knight can jump over pieces
@@ -162,11 +178,44 @@ public class GameTest {
 		assertFalse(g.getBoard().getSpace(0, 2).hasPiece());
 		g.updateOpponentsMove("MOVE,0,1,0,2");
 		assertTrue(g.getBoard().getSpace(0, 2).hasPiece());
+		
+		Board b = new Board();
+		b.createBoard();
+		b.setPiece(0, 6, new Pawn(0, Team.TEAM1));
+		b.setPiece(1, 6, new Pawn(1, Team.TEAM1));
+		b.setPiece(2, 6, new Pawn(2, Team.TEAM1));
+		b.setPiece(3, 6, new Pawn(3, Team.TEAM1));
+		b.setPiece(4, 6, new Pawn(4, Team.TEAM1));
+		
+		g.setBoard(b);
+		// Test Queen promotion
+		g.updateOpponentsMove("MOVE,0,6,0,7,Promote,Queen,8");
+		assertTrue(g.getBoard().getSpace(0, 7).getPiece() instanceof Queen);
+		// Test rook promotion
+		g.updateOpponentsMove("MOVE,1,6,1,7,Promote,Rook,8");
+		assertTrue(g.getBoard().getSpace(1, 7).getPiece() instanceof Rook);
+		// Test bishop promotion
+		g.updateOpponentsMove("MOVE,2,6,2,7,Promote,Bishop,8");
+		assertTrue(g.getBoard().getSpace(2, 7).getPiece() instanceof Bishop);
+		// Test knight promotion
+		g.updateOpponentsMove("MOVE,3,6,3,7,Promote,Knight,8");
+		assertTrue(g.getBoard().getSpace(3, 7).getPiece() instanceof Knight);
+
 	}
 	
 	@Test(expected=Exception.class)
 	public void testInvalidUpdateString() throws Exception {
 		game.updateOpponentsMove("0,1");
+	}
+	
+	@Test(expected=Exception.class)
+	public void testInvalidPromotionString() throws Exception {
+		Game g = new Game();
+		Board b = new Board();
+		b.createBoard();
+		b.setPiece(2, 1, new Pawn(0, Team.TEAM1));
+		g.setBoard(b);
+		g.updateOpponentsMove("MOVE,2,1,2,2,Promote,Rook");
 	}
 	
 	@Test
