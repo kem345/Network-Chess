@@ -21,33 +21,33 @@ import main.Game.Team;
 
 public class BoardGraphics extends Applet implements ActionListener {
 
-	  Label noteLabel;
-	  Button undo;
-	  Button end;
-	  Button startGame;
+	  //Label noteLabel;
+	  //Button undo;
+	  //Button end;
+	  //Button startGame;
 	  String importedIP;
 
 	  
 	  public void init() {
-		undo = new Button("Undo");
+		//undo = new Button("Undo");
 		//a.setSize(1, 1);
-		end = new Button ("End Turn");
-		startGame = new Button ("start game");
-		noteLabel = new Label("Game Started");
-		undo.setBounds(450, 50, 60, 20);
-		end.setBounds(450, 80, 60, 20);
-		startGame.setBounds(450, 120, 60, 20);
-		noteLabel.setBounds(10, 450, 100, 20);
-		undo.addActionListener(this);
-		end.addActionListener(this);
-		startGame.addActionListener(this);
+		//end = new Button ("End Turn");
+		//startGame = new Button ("start game");
+		//noteLabel = new Label("Game Started");
+		//undo.setBounds(450, 50, 60, 20);
+		//end.setBounds(450, 80, 60, 20);
+		//startGame.setBounds(450, 120, 60, 20);
+		//noteLabel.setBounds(10, 450, 100, 20);
+		//undo.addActionListener(this);
+		//end.addActionListener(this);
+		//startGame.addActionListener(this);
 		//a.setPreferredSize(new Dimension(1,1));
 		//SMCanvas mainCanvas = new SMCanvas();
 		//undo = new Button(mainCanvas, SWT.Push);
 	    //this.add(undo);
 	    //this.add(end);
 	    //this.add(startGame);
-	    this.add(noteLabel);
+	    //this.add(noteLabel);
 	    setLayout(new BorderLayout());
 	    add(new SMCanvas(importedIP));
 	    //label = new Label("Drag rectangle around within the area");
@@ -92,11 +92,11 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  String whoseTeam = "";
 	  //variable to track team of player
 	  Team myTeam = null;
+	  Team enemyTeam = null; //needed for promoting other team's pieces
 	  
 	  //Keep track of number of captured pieces for later use
-	  int capturedEnemies = 0;
+	  //int capturedEnemies = 0;
 	  int lastEnemyCaptured = 0;
-	  
 	  int capturedWhites = 0;
 	  int capturedBlacks = 0;
 	  
@@ -104,23 +104,35 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  //static boolean undoMade = false;
 	  
 	  //filler to "erase" captured pieces when you undo
-	  Rectangle filler = null;
+	  //Rectangle filler = null;
 	  
 	  // Holds the coordinates of the user's last mousePressed event.
 	  int last_x, last_y;
+	  
 	  //initialize check
 	  boolean firstTime = true;
-	  //are we moving a piece
+	  
+	  //have we selected a piece to be moved?
 	  boolean pieceSelected = false;
+	  
 	  //has a move been made this turn?
 	  boolean moveMade = false;
+	  
 	  //is it my turn still
 	  boolean myTurn = false;
+	  
 	  //piece we select
 	  int pieceHeld = 0;
 	  int startSquare = 0;
 	  int newSquare = 0;
 	  String pieceType = "";
+	  
+	  //check/checkmate conditionals
+	  boolean blackInCheck = false;
+	  boolean blackInCheckmate = false;
+	  boolean whiteInCheck = false;
+	  boolean whiteInCheckmate = false;
+	  
 	  //board graphics
 	  ArrayList<Rectangle> BoardGrid = new ArrayList<Rectangle>();
 	  //piece graphics
@@ -128,19 +140,22 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  ArrayList<Rectangle> blackPawns = new ArrayList<Rectangle>();
 	  ArrayList<Rectangle> whiteSpecials = new ArrayList<Rectangle>();
 	  ArrayList<Rectangle> blackSpecials = new ArrayList<Rectangle>();
-	  ArrayList<Rectangle> possibleMoves = new ArrayList<Rectangle>();
-	  ArrayList<Rectangle> promoRects = new ArrayList<Rectangle>();
-
+	  //keeps track of types of pieces added through promotions
 	  ArrayList<Image> whitePromoResults = new ArrayList<Image>();
 	  ArrayList<Image> blackPromoResults = new ArrayList<Image>();
+	  
+	  //shows possible moves
+	  ArrayList<Rectangle> possibleMoves = new ArrayList<Rectangle>();
+	  
+	  //used to show pieces to choose for promotion
+	  ArrayList<Rectangle> promoRects = new ArrayList<Rectangle>();
+
 	  
 	  
 	  //piece logics
 	  Vector<Piece> whitePieces = new Vector<Piece>();
 	  Vector<Piece> blackPieces = new Vector<Piece>();
-	  //buttons
-	  Button endTurn = new Button();
-	  Button undo = new Button();
+
 	  //piece images
 	  Image wPawnImg = null;
 	  Image wRookImg = null;
@@ -155,16 +170,39 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  Image bKingImg = null;
 	  Image bQueenImg = null;
 	  
-	  Image undoButtonImg = null;
-	  Image endTurnButtonImg = null;
-	  Image yourTurnImg = null;
-	  Image oppTurnImg = null;
+	  //Image undoButtonImg = null;
+	  //images to convey game information
+	  Image endTurnButtonImg = null;	//end turn button image
+	  Image yourTurnImg = null;			//indicates it is your turn
+	  Image oppTurnImg = null;			//indicates it is not your turn
 	  
-	  Rectangle undoButton = new Rectangle(450, 50, 60, 20);
-	  Rectangle endTurnButton = new Rectangle(450, 80, 60, 20);
-	  Rectangle yourTurn = new Rectangle(450,110,80,30);
-	  Rectangle oppTurn = new Rectangle(450,110,80,30);
+	  Image blackCheckImg = null;	  	//black team in check
+	  Image blackCheckmateImg = null; 	//black team in checkmate
+	  Image teamBlackImg = null;		//indicates you are black team
+	  Image teamWhiteImg = null;		//indicates you are white team
+	  Image whiteCheckImg = null;		//white team in check
+	  Image whiteCheckmateImg = null;	//white team in checkmate
+	  Image promoSelectImg = null;		//put over the promotion candidate pieces
 	  
+	  
+	  //Rectangle undoButton = new Rectangle(450, 50, 60, 20);
+	  //rectangles for information images
+	  Rectangle endTurnButtonRect = new Rectangle(450, 80, 60, 20);
+	  
+	  Rectangle teamBlackRect = new Rectangle(450,110,160,30);
+	  Rectangle teamWhiteRect = new Rectangle(450,110,160,30);
+	  
+	  Rectangle yourTurnRect = new Rectangle(450,140,100,30);
+	  Rectangle oppTurnRect = new Rectangle(450,140,160,40);
+	  
+	  Rectangle blackCheckRect = new Rectangle(450, 180, 160, 30);
+	  Rectangle blackCheckmateRect = new Rectangle(450,180,160,60);
+	  Rectangle whiteCheckRect = new Rectangle(450,180,160,30);
+	  Rectangle whiteCheckmateRect = new Rectangle(450,180,160,60);
+	  
+	  
+	  Rectangle promoSelectRect = new Rectangle(600, 350, 200, 30);
+	  //600 + 50*(i%2), 400 + 50*(i/2), 30, 30	promo rect params
 	  //locations where you select and move piece
 	  Space startSpace;
 	  Space newSpace;
@@ -176,14 +214,18 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  boolean promotionHappened = false;
 	  String promoType = "";
 	 
-	  boolean gameStarted = false;
-	  String latestOpponentMove = "";
+	  //for connecting to game over network
+	  String ip = ""; //ip of host of game
+	  boolean gameStarted = false; //has a game been found
+	  String latestOpponentMove = ""; //message about opponent's latest move from network
 	  
-	  String ip = "";
+	  //keeps track of if a team has won
+	  String winner = "";
 	  
 	  public SMCanvas() {
 		  
 	  }
+	  
 	  public SMCanvas(String ipAddress) {
 		//start logic stuff
 		try {
@@ -194,7 +236,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 		}
 		gameBoard = game1.getBoard();
 		
-		//define piece images
+		//define images with sources
 		wPawnImg = new ImageIcon("../images/whitePawn.png").getImage();
 		wRookImg = new ImageIcon("../images/whiteRook.png").getImage();
 		wKnightImg = new ImageIcon("../images/whiteKnight.png").getImage();
@@ -207,17 +249,25 @@ public class BoardGraphics extends Applet implements ActionListener {
 		bBishopImg = new ImageIcon("../images/blackBishop.png").getImage();
 		bKingImg = new ImageIcon("../images/blackKing.png").getImage();
 		bQueenImg = new ImageIcon("../images/blackQueen.png").getImage();
-		undoButtonImg = new ImageIcon("../images/undoButton.png").getImage();
+		//undoButtonImg = new ImageIcon("../images/undoButton.png").getImage();
 		endTurnButtonImg = new ImageIcon("../images/endTurnButton.png").getImage();
-
 		yourTurnImg = new ImageIcon("../images/yourTurn.png").getImage(); 
 		oppTurnImg = new ImageIcon("../images/oppTurn.png").getImage();
+		blackCheckImg = new ImageIcon("../images/blackCheckImg.png").getImage();
+		blackCheckmateImg = new ImageIcon("../images/blackCheckmateImg.png").getImage();
+		teamBlackImg = new ImageIcon("../images/teamBlackImg.png").getImage();
+		teamWhiteImg = new ImageIcon("../images/teamWhiteImg.png").getImage();
+		whiteCheckImg = new ImageIcon("../images/whiteCheckImg.png").getImage();
+		whiteCheckmateImg = new ImageIcon("../images/whiteCheckmateImg.png").getImage();
+		promoSelectImg = new ImageIcon("../images/promoSelectImg.png").getImage();
 		
-		//background
+		//set background
 	    setBackground(Color.white);
-	    //listeners
+	    //set listeners
 	    addMouseMotionListener(this);
 	    addMouseListener(this);
+	    
+	    //start game
 	    ip = ipAddress;
 		game1.connect(ip);
 	    startGame();
@@ -242,16 +292,17 @@ public class BoardGraphics extends Applet implements ActionListener {
 		//possibleMoves.clear();
 		//if(isTurn)
 		
-		if(e!= null && undoButton.contains(e.getX(), e.getY())){
-			undo();
-		}else if(e!= null && endTurnButton.contains(e.getX(), e.getY())){
+		//if(e!= null && undoButton.contains(e.getX(), e.getY())){
+			//undo();}
+		if(e!= null && endTurnButtonRect.contains(e.getX(), e.getY()) && myTurn && moveMade && !promotion){
 			endTurn();
+			repaint();
 		}
 		
-		if(gameStarted){
+		if(gameStarted && winner.equals("")){
 			if(myTurn){
 				if(pieceSelected){
-					System.out.println("MAking my own move");
+					//System.out.println("MAking my own move");
 					pieceSelected = false;
 					newSquare = -1;
 					for (int j=0; j<BoardGrid.size(); j++){
@@ -260,12 +311,17 @@ public class BoardGraphics extends Applet implements ActionListener {
 						}
 					}
 					if(newSquare > -1){
-						System.out.println("MAKING MOVE CONFROM");
+						//System.out.println("MAKING MOVE CONFROM");
 						makeMove();
 						moveMade = true;
+						if(!promotion){
+							System.out.println("Waiting for opponent1");
+							endTurn();
+						}
+						
 						//repaint();
 					}else{
-						System.out.println("MAKING MOVE UNDONE");
+						//System.out.println("MAKING MOVE UNDONE");
 						possibleMoves.clear();
 						pieceSelected = false;
 					}
@@ -275,13 +331,13 @@ public class BoardGraphics extends Applet implements ActionListener {
 					//myTurn = false;
 				}else if (!moveMade){
 					possibleMoves.clear();
-					System.out.println("Selecting my own piece");
+					//System.out.println("Selecting my own piece");
 					for (int j=0; j<BoardGrid.size(); j++){
 						if(BoardGrid.get(j).contains(e.getX(), e.getY())){
 							startSquare = j;
 						}
 					}
-					if(myTeam == Team.TEAM2){	
+					if(myTeam.equals(Team.TEAM2)){	
 						selectWhitePiece(startSquare);
 					}else{
 						selectBlackPiece(startSquare);
@@ -307,14 +363,21 @@ public class BoardGraphics extends Applet implements ActionListener {
 				}else if (promotion){
 					System.out.println("promoting");
 					selectPromoPiece(e);
-					
-				}else{
+					if(promotionHappened){
+						System.out.println("Waiting for opponent2");
+						endTurn();	
+					}
+				}/*else{
 					System.out.println("FAILING TO DO ANYTHING ON MY TURN");
-				}
+				}*/
+				//System.out.println("ONE TRUE REPAINT");
 				repaint();
-
+				/*if(moveMade && !myTurn){
+					mouseReleased(null);
+				}*/
 			}else{
-				System.out.println("Waiting for opponent");
+				System.out.println("Waiting for opponent3");
+				//repaint();
 				//you've made your move so wait for opponent's turn
 				try {
 					latestOpponentMove = game1.getConnection().listen();
@@ -322,18 +385,18 @@ public class BoardGraphics extends Applet implements ActionListener {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				System.out.println("MAKING OPP's MOVE");
+				//System.out.println("MAKING OPP's MOVE");
 				replicateOpponentMove(latestOpponentMove);
 				repaint();
 				moveMade = false;
 			}
-			}
 		}
+	}
 	  
 	  public void selectPromoPiece(MouseEvent e){
 		  for(int i=0; i<promoRects.size(); i++){
 				if(promoRects.get(i).contains(e.getX(), e.getY())){
-					if(whoseTeam == "white"){
+					if(whoseTeam.equals("white")){
 						  if(i==0){
 							  whitePromoResults.add(wKnightImg);
 							  Knight newKnight = new Knight(whiteSpecials.size() + 1, myTeam);
@@ -360,6 +423,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 
 						  promotion = false;
 						  promotionHappened = true;
+						  System.out.println("Promoted to a " + promoType);
 					}else{
 						if(i==0){
 							  blackPromoResults.add(bKnightImg);
@@ -387,10 +451,10 @@ public class BoardGraphics extends Applet implements ActionListener {
 	
 						  promotion = false;
 						  promotionHappened = true;
+						  System.out.println("Promoted to a " + promoType);
 					}
 				}
 		  }
-		  repaint();
 	  }
 	  
 	  public void selectWhitePiece(int startSquare){
@@ -437,7 +501,6 @@ public class BoardGraphics extends Applet implements ActionListener {
 		  }
 	  }
 	  
-	  
 	  public void makeMove(){
 
 			newSpace = gameBoard.getSpace(newSquare % 8, newSquare / 8);
@@ -471,9 +534,9 @@ public class BoardGraphics extends Applet implements ActionListener {
 							}
 						}
 						
-						System.out.println(startSquare + "qwe q" + newSquare);
+						//System.out.println(startSquare + "qwe q" + newSquare);
 						if(startSquare < newSquare){
-							if(whoseTeam == "white"){
+							if(whoseTeam.equals("white")){
 								whiteSpecials.get(pieceHeld).setLocation((int)BoardGrid.get(startSquare + 2).getX() + 5, (int)BoardGrid.get(startSquare + 2).getY() + 5);
 								whiteSpecials.get(pieceMovingTo).setLocation((int)BoardGrid.get(startSquare + 1).getX() + 5, (int)BoardGrid.get(startSquare + 1).getY() + 5);	
 							}else{
@@ -481,7 +544,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 								blackSpecials.get(pieceMovingTo).setLocation((int)BoardGrid.get(startSquare + 1).getX() + 5, (int)BoardGrid.get(startSquare + 1).getY() + 5);								
 							}
 						}else{
-							if(whoseTeam == "white"){
+							if(whoseTeam.equals("white")){
 								whiteSpecials.get(pieceHeld).setLocation((int)BoardGrid.get(startSquare - 2).getX() + 5, (int)BoardGrid.get(startSquare - 2).getY() + 5);
 								whiteSpecials.get(pieceMovingTo).setLocation((int)BoardGrid.get(startSquare - 1).getX() + 5, (int)BoardGrid.get(startSquare - 1).getY() + 5);	
 							}else{
@@ -494,17 +557,17 @@ public class BoardGraphics extends Applet implements ActionListener {
 						
 					//en passant
 					}else if(game1.getBoard().canEnpassant(startSpace, newSpace) && !newSpace.hasPiece()){
-						System.out.println("PASSANT");
+						//System.out.println("PASSANT");
 						
 						int passantSquare = 0;
-						if(whoseTeam=="white"){
+						if(whoseTeam.equals("white")){
 							passantSquare = newSquare + 8;
 						}else{
 							passantSquare = newSquare - 8;
 						}
 						Space passantSpace = gameBoard.getSpace(passantSquare % 8, passantSquare / 8);
-						System.out.println(passantSquare);
-						System.out.println(newSquare);
+						//System.out.println(passantSquare);
+						//System.out.println(newSquare);
 						
 						capturedPiece = passantSpace.getPiece();
 						for (int j=0; j<blackPawns.size(); j++){
@@ -537,7 +600,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 						}
 						game1.makeMove(startSpace, newSpace);
 						
-						if(whoseTeam == "white"){
+						if(whoseTeam.equals("white")){
 							moveRectToSquare(whitePawns.get(pieceHeld), newSquare);
 							//whiteRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);	
 						}else{
@@ -576,44 +639,42 @@ public class BoardGraphics extends Applet implements ActionListener {
 								lastEnemyCaptured = j;
 							}
 						}
-					//}
-					//capturing
-					game1.makeMove(startSpace, newSpace);
+						game1.makeMove(startSpace, newSpace);
 					
-					if(whoseTeam == "white" && pieceType == "pawn"){
-						moveRectToSquare(whitePawns.get(pieceHeld), newSquare);
-						//whiteRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);	
-					}else if(whoseTeam == "white" && pieceType == "special"){
-						moveRectToSquare(whiteSpecials.get(pieceHeld), newSquare);
-					}else if(whoseTeam == "black" && pieceType == "pawn"){
-						moveRectToSquare(blackPawns.get(pieceHeld), newSquare);
+						if(whoseTeam.equals("white") && pieceType.equals("pawn")){
+							moveRectToSquare(whitePawns.get(pieceHeld), newSquare);
+							//whiteRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);	
+						}else if(whoseTeam.equals("white") && pieceType.equals("special")){
+							moveRectToSquare(whiteSpecials.get(pieceHeld), newSquare);
+						}else if(whoseTeam.equals("black") && pieceType.equals("pawn")){
+							moveRectToSquare(blackPawns.get(pieceHeld), newSquare);
+						}else{
+							moveRectToSquare(blackSpecials.get(pieceHeld), newSquare);
+							//blackRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);							
+						}
 					}else{
-						moveRectToSquare(blackSpecials.get(pieceHeld), newSquare);
-						//blackRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);							
+						//vanilla move
+						game1.makeMove(startSpace, newSpace);
+						
+						if(whoseTeam.equals("white") && pieceType.equals("pawn")){
+							moveRectToSquare(whitePawns.get(pieceHeld), newSquare);
+							//whiteRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);	
+						}else if(whoseTeam.equals("white") && pieceType.equals("special")){
+							moveRectToSquare(whiteSpecials.get(pieceHeld), newSquare);
+						}else if(whoseTeam.equals("black") && pieceType.equals("pawn")){
+							moveRectToSquare(blackPawns.get(pieceHeld), newSquare);
+						}else{
+							moveRectToSquare(blackSpecials.get(pieceHeld), newSquare);
+							//blackRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);							
+						}
 					}
-				}else{
-					//vanilla move
-					game1.makeMove(startSpace, newSpace);
-					
-					if(whoseTeam == "white" && pieceType == "pawn"){
-						moveRectToSquare(whitePawns.get(pieceHeld), newSquare);
-						//whiteRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);	
-					}else if(whoseTeam == "white" && pieceType == "special"){
-						moveRectToSquare(whiteSpecials.get(pieceHeld), newSquare);
-					}else if(whoseTeam == "black" && pieceType == "pawn"){
-						moveRectToSquare(blackPawns.get(pieceHeld), newSquare);
-					}else{
-						moveRectToSquare(blackSpecials.get(pieceHeld), newSquare);
-						//blackRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);							
-					}
-				}
 					//Now check for black promotion 
 					if(newSpace.getPiece() instanceof Pawn && whoseTeam=="black" && newSpace.getyCoordinate() == 7){
 						promotion = true;
 						repaint();
 						//do black promotion
 					//else if white promotion
-					}else if(newSpace.getPiece() instanceof Pawn && whoseTeam=="white" && newSpace.getyCoordinate() == 0){
+					}else if(newSpace.getPiece() instanceof Pawn && whoseTeam.equals("white") && newSpace.getyCoordinate() == 0){
 						//do white promotion
 						promotion = true;
 						repaint();
@@ -624,15 +685,24 @@ public class BoardGraphics extends Applet implements ActionListener {
 					
 					
 					if(game1.checkMate(Game.Team.TEAM1)){
-						System.out.println("Team 1 has been put in CheckMate");
+						//System.out.println("Team 1 has been put in CheckMate");
+						blackInCheckmate = true;
+						winner = "white";
 					}else if(game1.checkMate(Game.Team.TEAM2)){
-						System.out.println("Team 2 has been put in CheckMate");
-					}
-					
-					if(game1.getBoard().teamInCheck(Game.Team.TEAM2)){
-						System.out.println("Team 2 is in check");
+						//System.out.println("Team 2 has been put in CheckMate");
+						whiteInCheckmate = true;
+						winner = "black";
+					}else if(game1.getBoard().teamInCheck(Game.Team.TEAM2)){
+						//System.out.println("Team 2 is in check");
+						whiteInCheck = true;
 					}else if(game1.getBoard().teamInCheck(Game.Team.TEAM1)){
-						System.out.println("Team 1 is in check");	
+						//System.out.println("Team 1 is in check");	
+						blackInCheck = true;
+					}else{
+						blackInCheckmate = false;
+						whiteInCheckmate = false;
+						blackInCheck = false;
+						whiteInCheck = false;
 					}
 					
 				}
@@ -648,7 +718,6 @@ public class BoardGraphics extends Applet implements ActionListener {
 			
 	  }
 	  
-	  
 	  public void replicateOpponentMove(String move){
 		  String[] coords = move.split(",");
 		  
@@ -657,64 +726,13 @@ public class BoardGraphics extends Applet implements ActionListener {
 		  //startSquare % 8, startSquare / 8
 		  startSquare = (startX + startY * 8);
 		  //System.out.println("Start x interpret as: " + startX);
-		  if(myTeam == Team.TEAM1){
+		  if(myTeam.equals(Team.TEAM1)){
 			  selectWhitePiece(startSquare);
 		  }else{
 			  selectBlackPiece(startSquare);
 		  }
 		  //longer message => promotion happened
-		  if(coords.length > 6){
-			  for(int i=0; i<coords.length; i++){
-				  System.out.println(coords[i]);  
-			  }
-			  //System.out.println(coords);
-			  
-			  //get what piece was promoted to
-			  String pType = coords[6];
-			  System.out.println(pType);
-			  if(whoseTeam == "white"){
-				  if(pType=="Knight"){
-					  whitePromoResults.add(wKnightImg);
-					  Knight newKnight = new Knight(whiteSpecials.size() + 1, myTeam);
-					  game1.promotePawn(newSpace, newKnight);
-				  }else if(pType=="Rook"){
-					  whitePromoResults.add(wRookImg);
-					  Rook newRook = new Rook(whiteSpecials.size() + 1, myTeam);
-					  game1.promotePawn(newSpace, newRook);
-				  }else if(pType=="Bishop"){
-					  whitePromoResults.add(wBishopImg);
-					  Bishop newBishop = new Bishop(whiteSpecials.size() + 1, myTeam);
-					  game1.promotePawn(newSpace, newBishop);
-				  }else if(pType=="Queen"){
-					  Queen newQueen = new Queen(whiteSpecials.size() + 1, myTeam);
-					  game1.promotePawn(newSpace, newQueen);
-					  whitePromoResults.add(wQueenImg);
-				  }
-				  whiteSpecials.add(whitePawns.get(pieceHeld));
-				  whitePawns.remove(pieceHeld);
-			}else{
-				if(pType=="Knight"){
-					  blackPromoResults.add(bKnightImg);
-					  Knight newKnight = new Knight(blackSpecials.size() + 1, myTeam);
-					  game1.promotePawn(newSpace, newKnight);
-				}else if(pType=="Rook"){
-					  blackPromoResults.add(bRookImg);
-					  Rook newRook = new Rook(blackSpecials.size() + 1, myTeam);
-					  game1.promotePawn(newSpace, newRook);
-				}else if(pType=="Bishop"){
-					  blackPromoResults.add(bBishopImg);
-					  Bishop newBishop = new Bishop(blackSpecials.size() + 1, myTeam);
-					  game1.promotePawn(newSpace, newBishop);
-				}else if(pType=="Queen"){
-					  blackPromoResults.add(bQueenImg);
-					  Queen newQueen = new Queen(blackSpecials.size() + 1, myTeam);
-					  game1.promotePawn(newSpace, newQueen);
-				}
-				  blackSpecials.add(blackPawns.get(pieceHeld));
-				  blackPawns.remove(pieceHeld);
-			}
-			  pieceType = "special";
-		  }
+		  
 		  //System.out.println("start Square after select " + startSquare);
 		  
 		  int endX = Integer.parseInt(coords[3]);
@@ -727,8 +745,63 @@ public class BoardGraphics extends Applet implements ActionListener {
 		  }*/
 		  //System.out.println(startSquare + "  " + newSquare);
 		  makeMove();
-		  pieceSelected = false;
+		  
+		  if(coords.length > 6){
+			  for(int i=0; i<coords.length; i++){
+				  System.out.println(coords[i]);  
+			  }
+			  //System.out.println(coords);
+			  
+			  //get what piece was promoted to
+			  String pType = coords[6];
+			  System.out.println(pType);
+			  if(whoseTeam.equals("white")){
+				  if(pType.equals("Knight")){
+					  whitePromoResults.add(wKnightImg);
+					  Knight newKnight = new Knight(whiteSpecials.size() + 1, enemyTeam);
+					  game1.promotePawn(newSpace, newKnight);
+				  }else if(pType.equals("Rook")){
+					  whitePromoResults.add(wRookImg);
+					  Rook newRook = new Rook(whiteSpecials.size() + 1, enemyTeam);
+					  game1.promotePawn(newSpace, newRook);
+				  }else if(pType.equals("Bishop")){
+					  whitePromoResults.add(wBishopImg);
+					  Bishop newBishop = new Bishop(whiteSpecials.size() + 1, enemyTeam);
+					  game1.promotePawn(newSpace, newBishop);
+				  }else{
+					  Queen newQueen = new Queen(whiteSpecials.size() + 1, enemyTeam);
+					  game1.promotePawn(newSpace, newQueen);
+					  whitePromoResults.add(wQueenImg);
+				  }
+				  whiteSpecials.add(whitePawns.get(pieceHeld));
+				  whitePawns.remove(pieceHeld);
+			  }else{
+				  if(pType.equals("Knight")){
+					  blackPromoResults.add(bKnightImg);
+					  Knight newKnight = new Knight(blackSpecials.size() + 1, enemyTeam);
+					  game1.promotePawn(newSpace, newKnight);
+				  }else if(pType.equals("Rook")){
+					  blackPromoResults.add(bRookImg);
+					  Rook newRook = new Rook(blackSpecials.size() + 1, enemyTeam);
+					  game1.promotePawn(newSpace, newRook);
+				  }else if(pType.equals("Bishop")){
+					  blackPromoResults.add(bBishopImg);
+					  Bishop newBishop = new Bishop(blackSpecials.size() + 1, enemyTeam);
+					  game1.promotePawn(newSpace, newBishop);
+				  }else{
+					  blackPromoResults.add(bQueenImg);
+					  Queen newQueen = new Queen(blackSpecials.size() + 1, enemyTeam);
+					  game1.promotePawn(newSpace, newQueen);
+				  }
+				  blackSpecials.add(blackPawns.get(pieceHeld));
+				  blackPawns.remove(pieceHeld);
+			  }
+			  //pieceType = "special";
+		  }
+		  
 		  myTurn = true;
+		  pieceSelected = false;
+		  promotion = false;
 		  repaint();
 	  }
 	  
@@ -778,10 +851,10 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  }
 	  
 	  public void MoveRectToJail(Rectangle r){
-		  if(whoseTeam == "white"){
-			  r.setLocation(600 + (capturedBlacks/2) * 50, 50 * (capturedBlacks%2));
+		  if(whoseTeam.equals("white")){
+			  r.setLocation(630 + (capturedBlacks/2) * 50, 50 * (capturedBlacks%2));
 		  }else{
-			  r.setLocation(600 + (capturedWhites/2) * 50, 50 * (capturedWhites%2) + 110);
+			  r.setLocation(630 + (capturedWhites/2) * 50, 50 * (capturedWhites%2) + 110);
 		  }
 	  }
 	  
@@ -836,12 +909,16 @@ public class BoardGraphics extends Applet implements ActionListener {
 			  game1.getConnection().sendMove(x1 + "," + y1 + "," + x2 + "," + y2);
 		  }
 		  myTurn = false;
+		  promotionHappened = false;
+		  //System.out.println("EndTurn");
+		  //update(g2);
 		  repaint();
+		  //System.out.println("SIGN UPDATED");
 		  //moveMade = false;//Change this for networking
 	  }
 	  
 	  public void startGame(){
-		  System.out.println("MADEIT satarat game");
+		  System.out.println("Looking for game");
 		  Team a = null;
 		  try {
 			a = game1.getConnection().run();
@@ -864,8 +941,11 @@ public class BoardGraphics extends Applet implements ActionListener {
 		  System.out.println("found game" + " " + team);
 		  myTeam = team;
 		  gameStarted = true;
-		  if(team == Team.TEAM1){
+		  if(team.equals(Team.TEAM2)){
 			  myTurn = true;
+			  enemyTeam = Team.TEAM1;
+		  }else{
+			  enemyTeam = Team.TEAM2;
 		  }
 	  }
 	  
@@ -1052,26 +1132,63 @@ public class BoardGraphics extends Applet implements ActionListener {
 	    g2.setPaint(Color.black);
 	    g2.draw(board);
 	    
-	    g2.drawImage(undoButtonImg, undoButton.x, undoButton.y, undoButton.width, undoButton.height, null);
-	    g2.drawImage(endTurnButtonImg, endTurnButton.x, endTurnButton.y, endTurnButton.width, endTurnButton.height, null);
+	    //g2.drawImage(undoButtonImg, undoButton.x, undoButton.y, undoButton.width, undoButton.height, null);
+	    r = endTurnButtonRect;
+	    g2.drawImage(endTurnButtonImg, r.x, r.y, r.width, r.height, null);
 	    
 	    if(myTurn){
-	    	g2.drawImage(yourTurnImg, yourTurn.x, yourTurn.y, yourTurn.width, yourTurn.height, null);
-	    	System.out.println("MY TURN sign");
+	    	//erase
+	    	g2.setPaint(Color.white);
+	    	r = oppTurnRect;
+	    	g2.draw(r);
+	    	g2.fill(r);
+	    	//fill
+	    	r = yourTurnRect;
+	    	g2.drawImage(yourTurnImg, r.x, r.y, r.width, r.height, null);
+	    	//System.out.println("MY TURN sign");
 	    }else{
-	    	System.out.println("OPP TURN sign");
-	    	g2.drawImage(oppTurnImg, oppTurn.x, oppTurn.y, oppTurn.width, oppTurn.height, null);
+	    	//erase
+	    	g2.setPaint(Color.white);
+	    	r = yourTurnRect;
+	    	g2.draw(r);
+	    	g2.fill(r);
+	    	//fill
+	    	r = oppTurnRect;
+	    	//System.out.println("OPP TURN sign");
+	    	g2.drawImage(oppTurnImg, r.x, r.y, r.width, r.height, null);
 	    }
-	    if(filler != null){
+	    
+	    if(myTeam.equals(Team.TEAM1)){
+	    	//erase
+	    	g2.setPaint(Color.white);
+	    	r = teamWhiteRect;
+	    	g2.draw(r);
+	    	g2.fill(r);
+	    	//fill
+	    	r = teamBlackRect;
+	    	g2.drawImage(teamBlackImg, r.x, r.y, r.width, r.height, null);
+	    }else{
+	    	//erase
+	    	g2.setPaint(Color.white);
+	    	r = teamBlackRect;
+	    	g2.draw(r);
+	    	g2.fill(r);
+	    	//fill
+	    	r = teamWhiteRect;
+	    	g2.drawImage(teamWhiteImg, r.x, r.y, r.width, r.height, null);
+	    }
+	    /*if(filler != null){
 		    g2.setPaint(Color.white);
 		    g2.draw(filler);
 		    g2.fill(filler);
 		    filler = null;
-	    }
+	    }*/
 	    
 	    //show possible promotion pieces
 	    //black
-	    if(promotion && whoseTeam=="black"){
+	    if(promotion && whoseTeam.equals("black")){
+	    	r = promoSelectRect;
+		    g2.drawImage(promoSelectImg, r.x, r.y, r.width, r.height, null);
 		    r = promoRects.get(0);
 		    g2.drawImage(bKnightImg, r.x, r.y, r.width, r.height, null);
 		    r = promoRects.get(1);
@@ -1081,7 +1198,9 @@ public class BoardGraphics extends Applet implements ActionListener {
 		    r = promoRects.get(3);
 		    g2.drawImage(bQueenImg, r.x, r.y, r.width, r.height, null);
 		//white
-	    }else if(promotion && whoseTeam=="white"){
+	    }else if(promotion && whoseTeam.equals("white")){
+	    	r = promoSelectRect;
+		    g2.drawImage(promoSelectImg, r.x, r.y, r.width, r.height, null);
 	    	r = promoRects.get(0);
 		    g2.drawImage(wKnightImg, r.x, r.y, r.width, r.height, null);
 		    r = promoRects.get(1);
@@ -1090,9 +1209,11 @@ public class BoardGraphics extends Applet implements ActionListener {
 		    g2.drawImage(wBishopImg, r.x, r.y, r.width, r.height, null);
 		    r = promoRects.get(3);
 		    g2.drawImage(wQueenImg, r.x, r.y, r.width, r.height, null);
-		    
 	    }else{
 	    	g2.setPaint(Color.white);
+	    	r = promoSelectRect;
+	    	g2.draw(r);
+	    	g2.fill(r);
 	    	r = promoRects.get(0);
 	    	g2.draw(r);
 		    g2.fill(r);
@@ -1105,6 +1226,27 @@ public class BoardGraphics extends Applet implements ActionListener {
 		    r = promoRects.get(3);
 		    g2.draw(r);
 		    g2.fill(r);
+	    }
+	    
+	    //show if a team is in check
+	    if(blackInCheck){
+	    	r = blackCheckRect;
+		    g2.drawImage(blackCheckImg, r.x, r.y, r.width, r.height, null);
+	    }else if(blackInCheckmate){
+	    	r = blackCheckmateRect;
+		    g2.drawImage(blackCheckmateImg, r.x, r.y, r.width, r.height, null);
+	    }else if(whiteInCheck){
+	    	r = whiteCheckRect;
+		    g2.drawImage(whiteCheckImg, r.x, r.y, r.width, r.height, null);
+	    }else if(whiteInCheckmate){
+	    	r = whiteCheckmateRect;
+		    g2.drawImage(whiteCheckmateImg, r.x, r.y, r.width, r.height, null);
+	    }else{
+	    	//erase
+	    	g2.setPaint(Color.white);
+	    	r = whiteCheckmateRect;
+	    	g2.draw(r);
+	    	g2.fill(r);
 	    }
 	    
 	    /*Rectangle piece = new Rectangle(0,0,30,30);
