@@ -338,8 +338,6 @@ public class Game {
 				newPiece = new Rook(pieceNum, team);
 			else if(type.equals("Queen"))
 				newPiece = new Queen(pieceNum, team);
-			else
-				throw new Exception("Invalid promote message recieved from server");
 			
 			this.promotePawn(end, newPiece);
 		}
