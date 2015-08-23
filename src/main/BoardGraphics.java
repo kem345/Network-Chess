@@ -207,11 +207,11 @@ public class BoardGraphics extends Applet implements ActionListener {
 		bBishopImg = new ImageIcon("../images/blackBishop.png").getImage();
 		bKingImg = new ImageIcon("../images/blackKing.png").getImage();
 		bQueenImg = new ImageIcon("../images/blackQueen.png").getImage();
-		undoButtonImg = new ImageIcon("../images/blackQueen.png").getImage();//ImageIcon("../images/undoButton.png").getImage();UNCOMMENT THIS WHEN HAVE IMAGES
-		endTurnButtonImg = new ImageIcon("../images/blackKing.png").getImage();//ImageIcon("../images/endTurnButton.png").getImage();UNCOMMENT THIS WHEN HAVE IMAGES
+		undoButtonImg = new ImageIcon("../images/undoButton.png").getImage();
+		endTurnButtonImg = new ImageIcon("../images/endTurnButton.png").getImage();
 
-		yourTurnImg = new ImageIcon("../images/whiteRook.png").getImage();//ImageIcon("../images/yourTurn.png").getImage(); UNCOMMENT THIS WHEN HAVE IMAGES
-		oppTurnImg = new ImageIcon("../images/blackRook.png").getImage();//ImageIcon("../images/oppTurn.png").getImage();UNCOMMENT THIS WHEN HAVE IMAGES
+		yourTurnImg = new ImageIcon("../images/yourTurn.png").getImage(); 
+		oppTurnImg = new ImageIcon("../images/oppTurn.png").getImage();
 		
 		//background
 	    setBackground(Color.white);
