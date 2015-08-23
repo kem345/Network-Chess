@@ -15,36 +15,36 @@ import java.awt.event.WindowEvent;
 public class MainMenu extends Applet implements ActionListener {
 
 	  Label noteLabel;
-	  Button undo;
-	  Button end;
+	  //Button undo;
+	  //Button end;
 	  Button startGame;
 	  TextField ipAddressBox;
 	  
 	  public void init() {
-		undo = new Button("Undo");
+		//undo = new Button("Undo");
 		//a.setSize(1, 1);
-		end = new Button ("End Turn");
+		//end = new Button ("End Turn");
 		startGame = new Button("Start Game");
 		
 		ipAddressBox = new TextField("Enter IP Here");
 		
 		//noteLabel = new Label("Game Started");
-		undo.setBounds(20, 20, 60, 20);
-		end.setBounds(20, 50, 60, 20);
+		//undo.setBounds(20, 20, 60, 20);
+		//end.setBounds(20, 50, 60, 20);
 
 		startGame.setBounds(20, 80, 60, 20);
 		ipAddressBox.setBounds(20, 110, 160, 20);
 		//noteLabel.setBounds(10, 450, 100, 20);
-		undo.addActionListener(this);
-		end.addActionListener(this);
+		//undo.addActionListener(this);
+		//end.addActionListener(this);
 		startGame.addActionListener(this);
 		ipAddressBox.addActionListener(this);
 		
 		//a.setPreferredSize(new Dimension(1,1));
 		//SMCanvas mainCanvas = new SMCanvas();
 		//undo = new Button(mainCanvas, SWT.Push);
-	    this.add(undo);
-	    this.add(end);
+	   // this.add(undo);
+	    //this.add(end);
 	    this.add(startGame);
 	    this.add(ipAddressBox);
 	    //this.add(noteLabel);

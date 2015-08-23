@@ -21,7 +21,7 @@ import main.Game.Team;
 
 public class BoardGraphics extends Applet implements ActionListener {
 
-	  //Label noteLabel;
+	  static //Label noteLabel;
 	  //Button undo;
 	  //Button end;
 	  //Button startGame;
@@ -58,7 +58,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 
 	  }
 
-	public void main(String s[]) {
+	public static void main(String s[]) {
 	    
 		Frame f = new Frame("Network Chess");
 		
