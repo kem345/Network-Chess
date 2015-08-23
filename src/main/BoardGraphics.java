@@ -3,13 +3,10 @@ package main;
 import java.awt.*;
 import java.awt.event.*;
 import java.applet.Applet;
-import java.awt.image.*;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Vector;
 
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 import Pieces.Bishop;
@@ -28,7 +25,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 	  Button undo;
 	  Button end;
 	  Button startGame;
-	  static String importedIP;
+	  String importedIP;
 
 	  
 	  public void init() {
@@ -497,13 +494,18 @@ public class BoardGraphics extends Applet implements ActionListener {
 						
 					//en passant
 					}else if(game1.getBoard().canEnpassant(startSpace, newSpace) && !newSpace.hasPiece()){
+						System.out.println("PASSANT");
+						
 						int passantSquare = 0;
 						if(whoseTeam=="white"){
-							passantSquare = newSquare - 8;
-						}else{
 							passantSquare = newSquare + 8;
+						}else{
+							passantSquare = newSquare - 8;
 						}
 						Space passantSpace = gameBoard.getSpace(passantSquare % 8, passantSquare / 8);
+						System.out.println(passantSquare);
+						System.out.println(newSquare);
+						
 						capturedPiece = passantSpace.getPiece();
 						for (int j=0; j<blackPawns.size(); j++){
 							if(BoardGrid.get(passantSquare).contains(blackPawns.get(j))){
@@ -532,6 +534,15 @@ public class BoardGraphics extends Applet implements ActionListener {
 								capturedWhites++;
 								lastEnemyCaptured = j;
 							}
+						}
+						game1.makeMove(startSpace, newSpace);
+						
+						if(whoseTeam == "white"){
+							moveRectToSquare(whitePawns.get(pieceHeld), newSquare);
+							//whiteRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);	
+						}else{
+							moveRectToSquare(blackPawns.get(pieceHeld), newSquare);
+							//blackRectangles.get(pieceHeld).setLocation((int)BoardGrid.get(newSquare).getX() + 5, (int)BoardGrid.get(newSquare).getY() + 5);							
 						}
 						
 					//logic for normal capturing pieces. Made to else if to avoid other special moves
