@@ -250,7 +250,7 @@ public class BoardGraphics extends Applet implements ActionListener {
 						makeMove();
 						moveMade = true;
 						if(!promotion){//if there's no promotion to do, we're done and can pass the turn
-							System.out.println("Waiting for opponent1");
+							//System.out.println("Waiting for opponent1");
 							endTurn();
 						}
 					}else{//if we don't select a valid move, let us pick a new one basically
@@ -288,14 +288,14 @@ public class BoardGraphics extends Applet implements ActionListener {
 				}else if (promotion){
 					selectPromoPiece(e);
 					if(promotionHappened){ //this makes sure they select a promotion option instead of click something else
-						System.out.println("Waiting for opponent2");
+						//System.out.println("Waiting for opponent2");
 						endTurn();	
 					}
 				}
 				repaint();
 			//it's not your turn, but the game is still going, so wait
 			}else{
-				System.out.println("Waiting for opponent3");
+				//System.out.println("Waiting for opponent3");
 				try {
 					latestOpponentMove = game1.getConnection().listen();
 				} catch (IOException e1) {
