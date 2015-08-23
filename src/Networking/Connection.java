@@ -13,7 +13,7 @@ public class Connection {
 	public BufferedReader in;
 	public PrintWriter out;
 	private static int PORT = 8889;
-	public static String serverAddress = "localhost";
+	public String serverAddress = "localhost";
 	private Socket socket;
 	
 	public Connection(String ip) {

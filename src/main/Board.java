@@ -332,7 +332,7 @@ public class Board {
 		Piece enP = space.getPiece();
 		
 		// Only pawns can perform en passant moves
-		if(enP instanceof Pawn) {
+		if(enP instanceof Pawn && space.isInDiagonal(end)) {
 			// if the piece moving is team 2 then it needs to be moving to row 2
 			// and capturing a pawn in row 3
 			if(enP.getTeam().equals(Team.TEAM2) && end.getyCoordinate() == 2 && getSpace(space.getxCoordinate(), 3).hasPiece()) {

@@ -159,9 +159,13 @@ public class Game {
 			board.removePiece(start.getxCoordinate(), start.getyCoordinate());
 			board.removePiece(end.getxCoordinate(), end.getyCoordinate());
 			if(end.getxCoordinate() > start.getxCoordinate()) {	
+				piece.moved();
+				r.moved();
 				board.setPiece(start.getxCoordinate() + 2, start.getyCoordinate(), piece);
 				board.setPiece(end.getxCoordinate() - 2, end.getyCoordinate(), r);
 			} else if(end.getxCoordinate() < start.getxCoordinate()) {	
+				piece.moved();
+				r.moved();
 				board.setPiece(start.getxCoordinate() - 2, start.getyCoordinate(), piece);
 				board.setPiece(end.getxCoordinate() + 3, end.getyCoordinate(), r);
 			}
